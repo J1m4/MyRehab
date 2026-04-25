@@ -7,11 +7,10 @@ const withPWA = require("next-pwa")({
 });
 
 const nextConfig: NextConfig = {
-  experimental: {
-    turbo: {
-      // Turbopack configuration
-    },
-  },
+  // Add the empty turbopack object at the top level
+  turbopack: {}, 
+  
+  
 };
 
 export default withPWA(nextConfig);
