@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client";
 
 export async function signUp(data: {
@@ -12,7 +12,8 @@ export async function signUp(data: {
   token?: string;
 }) {
   try {
-    const { email, name, password, token, role: selectedRole } = data;
+    const { email: rawEmail, name, password, token, role: selectedRole } = data;
+    const email = rawEmail.toLowerCase();
 
     const existingUser = await prisma.user.findUnique({
       where: { email },

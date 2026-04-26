@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,13 +15,21 @@ import { updateProfile, getUserProfile } from "@/app/actions/user";
 import { uploadFile } from "@/lib/supabase";
 
 export default function AccountPage() {
-  const { data: session, update } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  useEffect(() => {
     async function fetchProfile() {
+      if (status !== "authenticated") return;
       const data = await getUserProfile();
       if (data) {
         setProfile({
@@ -31,15 +40,17 @@ export default function AccountPage() {
       setFetching(false);
     }
     fetchProfile();
-  }, []);
+  }, [status]);
 
-  if (!session || fetching) {
+  if (status === "loading" || (status === "authenticated" && fetching)) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
       </div>
     );
   }
+
+  if (!session) return null;
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
