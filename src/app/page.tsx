@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dumbbell, ShieldCheck, Zap, Smartphone } from "lucide-react";
+import Logo from "@/components/ui/logo";
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 h-14 flex items-center border-b">
         <Link className="flex items-center justify-center" href="/">
-          <Dumbbell className="h-6 w-6 mr-2" />
-          <span className="font-bold">MyRehab</span>
+          <Logo />
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link className="text-sm font-medium hover:underline underline-offset-4" href="/login">
@@ -19,6 +19,11 @@ export default function LandingPage() {
           </Link>
         </nav>
       </header>
+      <div className="flex justify-center py-4 bg-slate-50 border-b lg:hidden">
+        <Button asChild variant="ghost" className="text-slate-600">
+          <Link href="/login">Already have an account? Sign In</Link>
+        </Button>
+      </div>
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-slate-900 text-white">
           <div className="container px-4 md:px-6">

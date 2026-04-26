@@ -81,6 +81,32 @@ export async function submitExerciseResult(data: {
   }
 }
 
+export async function savePTFeedback(data: {
+  resultId: string;
+  notes: string;
+  concerns: string;
+}) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== "THERAPIST") {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    await prisma.exerciseResult.update({
+      where: { id: data.resultId },
+      data: {
+        notes: data.notes,
+        concerns: data.concerns,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Save PT feedback error:", error);
+    return { success: false, error: "Internal server error" };
+  }
+}
+
 async function getAIInsight(feedback: string) {
   try {
     const response = await fetch("https://api.nvidia.com/v1/chat/completions", {

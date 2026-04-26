@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Play, Pause, RotateCcw, Timer as TimerIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { TimePickerWheel } from "@/components/ui/time-picker-wheel";
 
 export default function TimersPage() {
   return (
@@ -88,6 +89,7 @@ function Stopwatch() {
 function Countdown() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [inputMinutes, setInputMinutes] = useState(1);
+  const [inputSeconds, setInputSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
@@ -105,7 +107,7 @@ function Countdown() {
 
   const startTimer = () => {
     if (!isActive && timeLeft === 0) {
-      setTimeLeft(inputMinutes * 60);
+      setTimeLeft(inputMinutes * 60 + inputSeconds);
     }
     setIsActive(true);
   };
@@ -123,15 +125,12 @@ function Countdown() {
           {formatTime(timeLeft)}
         </div>
       ) : (
-        <div className="flex items-center gap-2">
-          <Input 
-            type="number" 
-            value={inputMinutes} 
-            onChange={(e) => setInputMinutes(Number(e.target.value))}
-            className="w-20 text-center text-xl"
-          />
-          <span className="text-xl font-medium">Minutes</span>
-        </div>
+        <TimePickerWheel 
+          minutes={inputMinutes} 
+          seconds={inputSeconds} 
+          onMinutesChange={setInputMinutes} 
+          onSecondsChange={setInputSeconds} 
+        />
       )}
       
       <div className="flex gap-4">
@@ -139,6 +138,7 @@ function Countdown() {
           variant={isActive ? "outline" : "default"} 
           size="lg" 
           onClick={isActive ? () => setIsActive(false) : startTimer}
+          disabled={!isActive && timeLeft === 0 && inputMinutes === 0 && inputSeconds === 0}
         >
           {isActive ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
           {isActive ? "Pause" : "Start"}
@@ -153,8 +153,10 @@ function Countdown() {
 
 function IntervalTimer() {
   const [sets, setSets] = useState(3);
-  const [workTime, setWorkTime] = useState(30);
-  const [restTime, setRestTime] = useState(10);
+  const [workMinutes, setWorkMinutes] = useState(0);
+  const [workSeconds, setWorkSeconds] = useState(30);
+  const [restMinutes, setRestMinutes] = useState(0);
+  const [restSeconds, setRestSeconds] = useState(10);
   
   const [currentSet, setCurrentSet] = useState(1);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -171,7 +173,7 @@ function IntervalTimer() {
       if (phase === "WORK") {
         if (currentSet < sets) {
           setPhase("REST");
-          setTimeLeft(restTime);
+          setTimeLeft(restMinutes * 60 + restSeconds);
         } else {
           setIsActive(false);
           setPhase("READY");
@@ -179,19 +181,25 @@ function IntervalTimer() {
       } else if (phase === "REST") {
         setCurrentSet(s => s + 1);
         setPhase("WORK");
-        setTimeLeft(workTime);
+        setTimeLeft(workMinutes * 60 + workSeconds);
       }
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft, phase, currentSet, sets, restTime, workTime]);
+  }, [isActive, timeLeft, phase, currentSet, sets, restMinutes, restSeconds, workMinutes, workSeconds]);
 
   const start = () => {
     if (phase === "READY") {
       setPhase("WORK");
-      setTimeLeft(workTime);
+      setTimeLeft(workMinutes * 60 + workSeconds);
       setCurrentSet(1);
     }
     setIsActive(true);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -202,7 +210,7 @@ function IntervalTimer() {
             {phase}
           </Badge>
           <div className="text-6xl font-mono font-bold">
-            {timeLeft}s
+            {formatTime(timeLeft)}
           </div>
           <div className="text-lg font-medium">
             Set {currentSet} of {sets}
@@ -217,16 +225,39 @@ function IntervalTimer() {
           </div>
         </div>
       ) : (
-        <div className="space-y-4 max-w-xs mx-auto">
-          <div className="grid grid-cols-2 items-center gap-4">
-            <Label>Sets</Label>
-            <Input type="number" value={sets} onChange={e => setSets(Number(e.target.value))} />
-            <Label>Work (sec)</Label>
-            <Input type="number" value={workTime} onChange={e => setWorkTime(Number(e.target.value))} />
-            <Label>Rest (sec)</Label>
-            <Input type="number" value={restTime} onChange={e => setRestTime(Number(e.target.value))} />
+        <div className="space-y-6 max-w-sm mx-auto">
+          <div className="space-y-2">
+            <Label className="text-xs uppercase text-slate-500 font-bold">Sets</Label>
+            <Input type="number" value={sets} onChange={e => setSets(Number(e.target.value))} className="text-center text-xl font-bold" />
           </div>
-          <Button className="w-full" onClick={start}>Start Interval</Button>
+          
+          <div className="space-y-2">
+            <Label className="text-xs uppercase text-slate-500 font-bold">Work Time</Label>
+            <TimePickerWheel 
+              minutes={workMinutes} 
+              seconds={workSeconds} 
+              onMinutesChange={setWorkMinutes} 
+              onSecondsChange={setWorkSeconds} 
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs uppercase text-slate-500 font-bold">Rest Time</Label>
+            <TimePickerWheel 
+              minutes={restMinutes} 
+              seconds={restSeconds} 
+              onMinutesChange={setRestMinutes} 
+              onSecondsChange={setRestSeconds} 
+            />
+          </div>
+
+          <Button 
+            className="w-full h-12 text-lg font-bold" 
+            onClick={start}
+            disabled={sets === 0 || (workMinutes === 0 && workSeconds === 0)}
+          >
+            Start Interval
+          </Button>
         </div>
       )}
     </Card>

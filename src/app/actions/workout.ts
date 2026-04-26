@@ -15,6 +15,7 @@ export async function createWorkout(data: {
     name: string;
     instructions: string;
     youtubeUrl?: string;
+    videoUrl?: string;
   }[];
 }) {
   try {
@@ -37,6 +38,7 @@ export async function createWorkout(data: {
             name: ex.name,
             instructions: ex.instructions,
             youtubeUrl: ex.youtubeUrl || null,
+            videoUrl: ex.videoUrl || null,
           })),
         },
       },
