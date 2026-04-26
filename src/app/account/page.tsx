@@ -59,12 +59,13 @@ export default function AccountPage() {
     try {
       setLoading(true);
       toast.info("Uploading profile picture...");
-      const url = await uploadFile(file, 'profile-pictures');
+      const url = await uploadFile(file, 'avatars');
       await updateProfile({ profilePictureUrl: url });
       setProfile({ ...profile, profilePictureUrl: url });
       toast.success("Profile picture updated!");
     } catch (error) {
-      toast.error("Upload failed");
+      console.error("Profile picture upload failed:", error);
+      toast.error("Upload failed. Check console for details.");
     } finally {
       setLoading(false);
     }

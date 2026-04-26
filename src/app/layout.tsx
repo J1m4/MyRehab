@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "MyRehab",
   },
+  icons: {
+    apple: "/laneonept.png",
+  }
 };
 
 export const viewport: Viewport = {
