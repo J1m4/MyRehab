@@ -6,13 +6,14 @@ import { Role } from "@prisma/client";
 
 export async function signUp(data: {
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   password: string;
   role?: Role;
   token?: string;
 }) {
   try {
-    const { email: rawEmail, name, password, token, role: selectedRole } = data;
+    const { email: rawEmail, firstName, lastName, password, token, role: selectedRole } = data;
     const email = rawEmail.toLowerCase();
 
     const existingUser = await prisma.user.findUnique({
@@ -43,7 +44,9 @@ export async function signUp(data: {
     const user = await prisma.user.create({
       data: {
         email,
-        name,
+        name: `${firstName} ${lastName}`, // Maintain name field for backwards compatibility
+        firstName,
+        lastName,
         passwordHash,
         role,
       },

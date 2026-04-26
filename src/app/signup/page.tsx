@@ -16,7 +16,8 @@ function SignupForm() {
   const token = searchParams.get("token");
 
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"THERAPIST" | "CLIENT">("THERAPIST");
   const [loading, setLoading] = useState(false);
@@ -32,7 +33,8 @@ function SignupForm() {
     try {
       const result = await signUp({
         email,
-        name,
+        firstName,
+        lastName,
         password,
         role: token ? "CLIENT" : role,
         token: token || undefined,
@@ -52,7 +54,7 @@ function SignupForm() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-slate-50 px-4 py-8">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Create Account</CardTitle>
@@ -83,15 +85,27 @@ function SignupForm() {
                 </RadioGroup>
               </div>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  placeholder="John"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  placeholder="Doe"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
