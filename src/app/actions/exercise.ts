@@ -109,7 +109,14 @@ export async function savePTFeedback(data: {
 
 async function getAIInsight(feedback: string) {
   try {
-    const response = await fetch("https://api.nvidia.com/v1/chat/completions", {
+    console.log("[AI Insight] Starting analysis for feedback:", feedback);
+    
+    if (!process.env.NVIDIA_API_KEY) {
+      console.error("[AI Insight] NVIDIA_API_KEY is missing");
+      return "AI Insight unavailable: API key missing.";
+    }
+
+    const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -128,13 +135,28 @@ async function getAIInsight(feedback: string) {
           },
         ],
         max_tokens: 100,
+        temperature: 0.5,
+        top_p: 1,
       }),
     });
 
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`[AI Insight] NVIDIA API error (${response.status}):`, errorBody);
+      return "Could not analyze feedback at this time.";
+    }
+
     const data = await response.json();
-    return data.choices[0].message.content;
+    console.log("[AI Insight] API Response received successfully");
+    
+    if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+      return data.choices[0].message.content;
+    }
+    
+    console.error("[AI Insight] Unexpected API response format:", JSON.stringify(data));
+    return "Could not analyze feedback at this time.";
   } catch (error) {
-    console.error("NVIDIA API error:", error);
+    console.error("[AI Insight] Fetch error:", error);
     return "Could not analyze feedback at this time.";
   }
 }

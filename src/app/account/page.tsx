@@ -9,10 +9,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { LogOut, User, Mail, Shield, Camera, Save, Loader2 } from "lucide-react";
+import { LogOut, Camera, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { updateProfile, getUserProfile } from "@/app/actions/user";
-import { uploadFile } from "@/lib/supabase";
+import { updateProfile, getUserProfile, uploadAvatar } from "@/app/actions/user";
 
 export default function AccountPage() {
   const { data: session, status } = useSession();
@@ -54,18 +53,26 @@ export default function AccountPage() {
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !session?.user) return;
 
     try {
       setLoading(true);
       toast.info("Uploading profile picture...");
-      const url = await uploadFile(file, 'avatars');
-      await updateProfile({ profilePictureUrl: url });
-      setProfile({ ...profile, profilePictureUrl: url });
-      toast.success("Profile picture updated!");
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      const result = await uploadAvatar(formData);
+      
+      if (result.success && result.url) {
+        setProfile({ ...profile, profilePictureUrl: result.url });
+        toast.success("Profile picture updated!");
+      } else {
+        toast.error(result.error || "Upload failed");
+      }
     } catch (error) {
       console.error("Profile picture upload failed:", error);
-      toast.error("Upload failed. Check console for details.");
+      toast.error("Something went wrong during upload.");
     } finally {
       setLoading(false);
     }
@@ -133,9 +140,11 @@ export default function AccountPage() {
           <div>
             <CardTitle className="text-2xl">{session.user?.name || "User"}</CardTitle>
             <CardDescription>{session.user?.email}</CardDescription>
-            <Badge variant="outline" className="mt-2">
-              {(session.user as any).role}
-            </Badge>
+            <div className="mt-2">
+              <Badge variant="outline">
+                {(session.user as any).role}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -254,6 +263,7 @@ export default function AccountPage() {
 }
 
 function Badge({ children, className, variant = "default" }: { children: React.ReactNode, className?: string, variant?: "default" | "outline" }) {
+  const { cn } = require("@/lib/utils");
   return (
     <span className={cn(
       "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
@@ -263,8 +273,4 @@ function Badge({ children, className, variant = "default" }: { children: React.R
       {children}
     </span>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
 }

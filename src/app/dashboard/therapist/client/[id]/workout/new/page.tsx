@@ -10,10 +10,9 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Dumbbell, Upload, Video } from "lucide-react";
+import { Plus, Trash2, Dumbbell } from "lucide-react";
 import { createWorkout } from "@/app/actions/workout";
 import { toast } from "sonner";
-import { uploadFile } from "@/lib/supabase";
 
 const workoutSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
@@ -22,7 +21,6 @@ const workoutSchema = z.object({
     name: z.string().min(2, "Exercise name required"),
     instructions: z.string().min(10, "Instructions must be at least 10 characters"),
     youtubeUrl: z.string().url().optional().or(z.literal("")),
-    videoUrl: z.string().optional().or(z.literal("")),
   })).min(1, "Add at least one exercise"),
 });
 
@@ -42,7 +40,7 @@ export default function CreateWorkoutPage({ params }: { params: Promise<{ id: st
     defaultValues: {
       title: "",
       scheduledFor: new Date().toISOString().split("T")[0],
-      exercises: [{ name: "", instructions: "", youtubeUrl: "", videoUrl: "" }],
+      exercises: [{ name: "", instructions: "", youtubeUrl: "" }],
     },
   });
 
@@ -50,18 +48,6 @@ export default function CreateWorkoutPage({ params }: { params: Promise<{ id: st
     name: "exercises",
     control: form.control,
   });
-
-  async function handleVideoUpload(index: number, file: File) {
-    try {
-      toast.info("Uploading video...");
-      const publicUrl = await uploadFile(file, 'exercise-videos');
-      form.setValue(`exercises.${index}.videoUrl`, publicUrl);
-      toast.success("Video uploaded!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Video upload failed");
-    }
-  }
 
   async function onSubmit(values: WorkoutFormValues) {
     if (!clientId) return;
@@ -139,7 +125,7 @@ export default function CreateWorkoutPage({ params }: { params: Promise<{ id: st
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => append({ name: "", instructions: "", youtubeUrl: "", videoUrl: "" })}
+                onClick={() => append({ name: "", instructions: "", youtubeUrl: "" })}
               >
                 <Plus className="mr-2 h-4 w-4" /> Add Exercise
               </Button>
@@ -203,41 +189,6 @@ export default function CreateWorkoutPage({ params }: { params: Promise<{ id: st
                       </FormItem>
                     )}
                   />
-
-                  <div className="space-y-2">
-                    <FormLabel>Native Video Upload (Optional)</FormLabel>
-                    <div className="flex items-center gap-4">
-                      {form.watch(`exercises.${index}.videoUrl`) ? (
-                        <div className="flex-1 flex items-center gap-2 p-2 border rounded-md bg-slate-50">
-                          <Video className="h-4 w-4 text-green-500" />
-                          <span className="text-xs text-slate-500 truncate flex-1">
-                            {form.watch(`exercises.${index}.videoUrl`)}
-                          </span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => form.setValue(`exercises.${index}.videoUrl`, "")}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Trash2 className="h-3 w-3 text-red-500" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex-1">
-                          <Input 
-                            type="file" 
-                            accept="video/*" 
-                            capture="environment"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleVideoUpload(index, file);
-                            }}
-                            className="text-xs"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             ))}
