@@ -34,10 +34,12 @@ interface Workout {
 }
 
 export default function ClientCalendarView({ 
-  workouts
+  workouts,
+  isTherapist = false
 }: { 
   workouts: Workout[];
-  clientId: string;
+  clientId?: string;
+  isTherapist?: boolean;
 }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -182,7 +184,7 @@ export default function ClientCalendarView({
               <CardContent>
                 <div className="flex gap-2">
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/dashboard/therapist/workout/${workout.id}`}>
+                    <Link href={isTherapist ? `/dashboard/therapist/workout/${workout.id}` : `/workout/${workout.id}`}>
                       View Details
                     </Link>
                   </Button>

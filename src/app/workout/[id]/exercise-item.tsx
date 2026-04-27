@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Play, Upload, Check, Edit2 } from "lucide-react";
+import { Play, Upload, Check, Edit2 } from "lucide-react";
 import { submitExerciseResult } from "@/app/actions/exercise";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -81,7 +81,7 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
       </CardHeader>
       <CardContent className="space-y-4">
         {exercise.videoUrl ? (
-          <div className="aspect-video w-full overflow-hidden rounded-md bg-slate-100">
+          <div className="aspect-video w-full overflow-hidden rounded-md bg-black">
             <video
               src={exercise.videoUrl}
               className="w-full h-full object-cover"
@@ -89,7 +89,7 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
             />
           </div>
         ) : videoId ? (
-          <div className="aspect-video w-full overflow-hidden rounded-md bg-slate-100">
+          <div className="aspect-video w-full overflow-hidden rounded-md bg-slate-100 border">
             <iframe
               width="100%"
               height="100%"
@@ -101,11 +101,12 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
             ></iframe>
           </div>
         ) : exercise.youtubeUrl && (
-          <Button asChild variant="outline" className="w-full">
-            <a href={exercise.youtubeUrl} target="_blank" rel="noopener noreferrer">
-              <Play className="mr-2 h-4 w-4" /> Watch Video
+          <div className="flex items-center gap-2 text-sm text-blue-600">
+            <Play className="h-4 w-4" />
+            <a href={exercise.youtubeUrl} target="_blank" rel="noopener noreferrer" className="hover:underline font-medium">
+              Watch Demo Video (External)
             </a>
-          </Button>
+          </div>
         )}
 
         <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-md italic">
@@ -123,11 +124,6 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
                 ) : (
                   <img src={exercise.result.mediaUrl} alt="Exercise result" className="w-full max-h-48 object-cover" />
                 )}
-              </div>
-            )}
-            {exercise.result.aiInsight && (
-              <div className="bg-blue-50 p-2 rounded text-xs text-blue-700">
-                <strong>AI Insight:</strong> {exercise.result.aiInsight}
               </div>
             )}
             {(exercise.result.notes || exercise.result.concerns) && (

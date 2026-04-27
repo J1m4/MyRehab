@@ -20,13 +20,25 @@ export async function submitExerciseResult(data: {
 
     const { exerciseId, feedback, mediaUrl } = data;
 
+    // Get exercise context for AI
+    const exerciseContext = await prisma.exercise.findUnique({
+      where: { id: exerciseId },
+      include: {
+        workout: true
+      }
+    });
+
     // Call NVIDIA API for AI Insights
     let aiInsight = null;
-    if (process.env.NVIDIA_API_KEY && feedback) {
-      aiInsight = await getAIInsight(feedback);
+    if (process.env.NVIDIA_API_KEY && feedback && exerciseContext) {
+      aiInsight = await getAIInsight(feedback, {
+        exerciseName: exerciseContext.name,
+        instructions: exerciseContext.instructions,
+        workoutTitle: exerciseContext.workout.title
+      });
     }
 
-    const result = await prisma.exerciseResult.upsert({
+    await prisma.exerciseResult.upsert({
       where: { exerciseId },
       update: {
         feedback,
@@ -107,7 +119,7 @@ export async function savePTFeedback(data: {
   }
 }
 
-async function getAIInsight(feedback: string) {
+async function getAIInsight(feedback: string, context: { exerciseName: string, instructions: string, workoutTitle: string }) {
   try {
     console.log("[AI Insight] Starting analysis for feedback:", feedback);
     
@@ -115,6 +127,11 @@ async function getAIInsight(feedback: string) {
       console.error("[AI Insight] NVIDIA_API_KEY is missing");
       return "AI Insight unavailable: API key missing.";
     }
+
+    const systemPrompt = `You are a physical therapy assistant. Analyze the client feedback for the exercise "${context.exerciseName}" in the workout plan "${context.workoutTitle}".
+Exercise Instructions: "${context.instructions}"
+
+Analyze the client's review and provide a concise insight (max 2 sentences) for the therapist regarding pain points, movement quality, or progress trends. Focus on identifying specific issues that may require therapist intervention.`;
 
     const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
       method: "POST",
@@ -127,14 +144,14 @@ async function getAIInsight(feedback: string) {
         messages: [
           {
             role: "system",
-            content: "You are a physical therapy assistant. Analyze the client feedback and provide a concise insight (max 2 sentences) for the therapist regarding pain points or progress trends. Focus on identifying specific issues.",
+            content: systemPrompt,
           },
           {
             role: "user",
-            content: feedback,
+            content: `Client feedback: "${feedback}"`,
           },
         ],
-        max_tokens: 100,
+        max_tokens: 150,
         temperature: 0.5,
         top_p: 1,
       }),

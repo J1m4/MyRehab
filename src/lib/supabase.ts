@@ -7,28 +7,55 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function uploadFile(
   file: File,
-  bucket: 'exercise-videos' | 'profile-pictures' | 'avatars',
+  bucket: 'exercise-videos' | 'profile-pictures' | 'avatars' | 'message-attachments',
   userId?: string
 ) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     throw new Error("Supabase credentials are not configured.");
   }
 
-  const fileExt = file.name.split('.').pop() || 'jpg';
+  let fileToUpload: File | Blob = file;
+  let fileName = '';
   const timestamp = Date.now();
-  const fileName = userId 
-    ? `${userId}-${timestamp}.${fileExt}`
-    : `${Math.random().toString(36).substring(2)}-${timestamp}.${fileExt}`;
+
+  // Handle HEIC files from iPhone
+  if (file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic') {
+    try {
+      console.log("[Supabase Upload] Converting HEIC to JPEG...");
+      const heic2any = (await import('heic2any')).default;
+      const blob = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.8
+      });
+      
+      fileToUpload = Array.isArray(blob) ? blob[0] : blob;
+      fileName = userId 
+        ? `${userId}-${timestamp}.jpg`
+        : `${Math.random().toString(36).substring(2)}-${timestamp}.jpg`;
+    } catch (e) {
+      console.error("[Supabase Upload] HEIC conversion failed, uploading original:", e);
+      const fileExt = file.name.split('.').pop() || 'heic';
+      fileName = userId 
+        ? `${userId}-${timestamp}.${fileExt}`
+        : `${Math.random().toString(36).substring(2)}-${timestamp}.${fileExt}`;
+    }
+  } else {
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    fileName = userId 
+      ? `${userId}-${timestamp}.${fileExt}`
+      : `${Math.random().toString(36).substring(2)}-${timestamp}.${fileExt}`;
+  }
   
   const filePath = fileName;
 
   console.log(`[Supabase Upload] Target Bucket: ${bucket}`);
   console.log(`[Supabase Upload] File Path: ${filePath}`);
-  console.log(`[Supabase Upload] File Type: ${file.type}, Size: ${file.size} bytes`);
+  console.log(`[Supabase Upload] File Type: ${fileToUpload.type}, Size: ${fileToUpload.size} bytes`);
 
   const { data, error } = await supabase.storage
     .from(bucket)
-    .upload(filePath, file, {
+    .upload(filePath, fileToUpload, {
       cacheControl: '3600',
       upsert: false
     });

@@ -56,7 +56,7 @@ export default async function ClientWorkoutsPage({ params }: { params: Promise<{
         </Button>
       </div>
 
-      <ClientCalendarView workouts={workouts} clientId={clientId} />
+      <ClientCalendarView workouts={workouts} isTherapist={true} />
     </div>
   );
 }

@@ -9,8 +9,11 @@ const withPWA = require("next-pwa")({
 const nextConfig: NextConfig = {
   // Add the empty turbopack object at the top level
   turbopack: {}, 
-  
-  
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
 };
 
 export default withPWA(nextConfig);
