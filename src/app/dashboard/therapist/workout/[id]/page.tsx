@@ -8,6 +8,7 @@ import { ChevronLeft, Play, FileText, AlertCircle, CheckCircle2 } from "lucide-r
 import { format } from "date-fns";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { getYouTubeEmbedUrl } from "@/lib/utils";
 
 export default async function TherapistWorkoutDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: workoutId } = await params;
@@ -45,12 +46,6 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
     );
   }
 
-  const getYoutubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
-
   return (
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex items-center gap-2">
@@ -69,7 +64,7 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
 
       <div className="grid gap-6">
         {workout.exercises.map((exercise) => {
-          const videoId = exercise.youtubeUrl ? getYoutubeId(exercise.youtubeUrl) : null;
+          const embedUrl = getYouTubeEmbedUrl(exercise.youtubeUrl);
           
           return (
             <Card key={exercise.id}>
@@ -91,12 +86,12 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {videoId ? (
-                  <div className="aspect-video w-full max-w-2xl overflow-hidden rounded-md bg-slate-100 border">
+                {embedUrl ? (
+                  <div className="w-full aspect-video rounded-lg overflow-hidden bg-slate-100 border">
                     <iframe
                       width="100%"
                       height="100%"
-                      src={`https://www.youtube.com/embed/${videoId}`}
+                      src={embedUrl}
                       title={exercise.name}
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -113,7 +108,7 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
                 )}
                 
                 {exercise.videoUrl && (
-                  <div className="aspect-video w-full max-w-2xl overflow-hidden rounded-md bg-black">
+                  <div className="w-full aspect-video rounded-lg overflow-hidden bg-black">
                     <video src={exercise.videoUrl} controls className="w-full h-full" />
                   </div>
                 )}

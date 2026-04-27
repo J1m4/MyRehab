@@ -121,17 +121,17 @@ export async function savePTFeedback(data: {
 
 async function getAIInsight(feedback: string, context: { exerciseName: string, instructions: string, workoutTitle: string }) {
   try {
-    console.log("[AI Insight] Starting analysis for feedback:", feedback);
-    
     if (!process.env.NVIDIA_API_KEY) {
       console.error("[AI Insight] NVIDIA_API_KEY is missing");
       return "AI Insight unavailable: API key missing.";
     }
 
-    const systemPrompt = `You are a physical therapy assistant. Analyze the client feedback for the exercise "${context.exerciseName}" in the workout plan "${context.workoutTitle}".
-Exercise Instructions: "${context.instructions}"
+    const systemPrompt = "You are an expert physical therapist analyzing a client's workout logs. Provide a short, 3-sentence insight on their progress and one area to focus on.";
+    
+    // Parse the data into a readable text string instead of sending raw JSON
+    const userPrompt = `Workout: ${context.workoutTitle}\nExercise: ${context.exerciseName}\nInstructions: ${context.instructions}\nClient Feedback: ${feedback}`;
 
-Analyze the client's review and provide a concise insight (max 2 sentences) for the therapist regarding pain points, movement quality, or progress trends. Focus on identifying specific issues that may require therapist intervention.`;
+    console.log("[AI Insight] Sending prompt to NVIDIA:", userPrompt);
 
     const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
       method: "POST",
@@ -148,10 +148,10 @@ Analyze the client's review and provide a concise insight (max 2 sentences) for 
           },
           {
             role: "user",
-            content: `Client feedback: "${feedback}"`,
+            content: userPrompt,
           },
         ],
-        max_tokens: 150,
+        max_tokens: 200,
         temperature: 0.5,
         top_p: 1,
       }),
@@ -164,10 +164,13 @@ Analyze the client's review and provide a concise insight (max 2 sentences) for 
     }
 
     const data = await response.json();
-    console.log("[AI Insight] API Response received successfully");
     
-    if (data.choices && data.choices.length > 0 && data.choices[0].message) {
-      return data.choices[0].message.content;
+    // Log the raw text response for debugging
+    const rawContent = data.choices && data.choices[0]?.message?.content;
+    console.log("[AI Insight] Raw NVIDIA Response:", rawContent);
+    
+    if (rawContent) {
+      return rawContent.trim();
     }
     
     console.error("[AI Insight] Unexpected API response format:", JSON.stringify(data));

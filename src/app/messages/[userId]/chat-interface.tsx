@@ -127,7 +127,7 @@ export default function ChatInterface({
               <div className={`max-w-[80%] p-3 rounded-lg ${
                 isMe ? "bg-slate-900 text-white rounded-br-none" : "bg-slate-100 text-slate-900 rounded-bl-none"
               }`}>
-                {msg.imageUrl && (
+                {msg?.imageUrl && (
                   <div className="mb-2 rounded-md overflow-hidden bg-slate-200 min-w-[200px]">
                     <img 
                       src={msg.imageUrl} 

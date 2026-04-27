@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Play, Upload, Check, Edit2 } from "lucide-react";
+import { Upload, Check, Edit2 } from "lucide-react";
 import { submitExerciseResult } from "@/app/actions/exercise";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { uploadFile } from "@/lib/supabase";
-import { cn } from "@/lib/utils";
+import { cn, getYouTubeEmbedUrl } from "@/lib/utils";
 
 export default function ExerciseItem({ exercise }: { exercise: any }) {
   const [showForm, setShowForm] = useState(false);
@@ -20,14 +20,7 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
   const router = useRouter();
 
   const isCompleted = exercise.status === "COMPLETED";
-
-  const getYoutubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
-
-  const videoId = exercise.youtubeUrl ? getYoutubeId(exercise.youtubeUrl) : null;
+  const embedUrl = getYouTubeEmbedUrl(exercise.youtubeUrl);
 
   async function handleSubmit() {
     setLoading(true);
@@ -81,33 +74,26 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
       </CardHeader>
       <CardContent className="space-y-4">
         {exercise.videoUrl ? (
-          <div className="aspect-video w-full overflow-hidden rounded-md bg-black">
+          <div className="w-full aspect-video rounded-lg overflow-hidden bg-black">
             <video
               src={exercise.videoUrl}
               className="w-full h-full object-cover"
               controls
             />
           </div>
-        ) : videoId ? (
-          <div className="aspect-video w-full overflow-hidden rounded-md bg-slate-100 border">
+        ) : embedUrl ? (
+          <div className="w-full aspect-video rounded-lg overflow-hidden bg-slate-100 border">
             <iframe
               width="100%"
               height="100%"
-              src={`https://www.youtube.com/embed/${videoId}`}
+              src={embedUrl}
               title={exercise.name}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>
           </div>
-        ) : exercise.youtubeUrl && (
-          <div className="flex items-center gap-2 text-sm text-blue-600">
-            <Play className="h-4 w-4" />
-            <a href={exercise.youtubeUrl} target="_blank" rel="noopener noreferrer" className="hover:underline font-medium">
-              Watch Demo Video (External)
-            </a>
-          </div>
-        )}
+        ) : null}
 
         <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-md italic">
           {exercise.instructions}
