@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft } from "lucide-react";
 import PTReviewForm from "./pt-review-form";
+import AIInsightRegenerator from "@/components/dashboard/AIInsightRegenerator";
 
 export default async function CompletedExercisesPage({ 
   searchParams 
@@ -96,8 +97,19 @@ export default async function CompletedExercisesPage({
                     <p className="text-sm bg-slate-50 p-3 rounded-md italic">
                       "{result.feedback || "No feedback provided."}"
                     </p>
+                    
+                    <div className="mt-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-slate-400 uppercase">AI Insight</h4>
+                        <AIInsightRegenerator resultId={result.id} />
+                      </div>
+                      <div className="p-3 bg-blue-50 text-blue-800 rounded-md text-xs border border-blue-100">
+                        {result.aiInsight || "No analysis generated yet."}
+                      </div>
+                    </div>
+
                     {result.mediaUrl && (
-                      <div className="mt-2">
+                      <div className="mt-4">
                         {result.mediaUrl.match(/\.(mp4|mov|webm)$/) ? (
                           <video src={result.mediaUrl} controls className="w-full max-h-48 rounded-md bg-black" />
                         ) : (

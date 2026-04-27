@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
+import { revalidatePath } from "next/cache";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -119,19 +120,64 @@ export async function savePTFeedback(data: {
   }
 }
 
+export async function regenerateAIInsight(resultId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== "THERAPIST") {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const result = await prisma.exerciseResult.findUnique({
+      where: { id: resultId },
+      include: {
+        exercise: {
+          include: {
+            workout: true
+          }
+        }
+      }
+    });
+
+    if (!result || !result.feedback) {
+      return { success: false, error: "Result or feedback not found" };
+    }
+
+    const aiInsight = await getAIInsight(result.feedback, {
+      exerciseName: result.exercise.name,
+      instructions: result.exercise.instructions,
+      workoutTitle: result.exercise.workout.title
+    });
+
+    await prisma.exerciseResult.update({
+      where: { id: resultId },
+      data: { aiInsight }
+    });
+
+    revalidatePath("/dashboard/therapist/workout/[id]", "page");
+    revalidatePath("/dashboard/therapist/completed", "page");
+
+    return { success: true, insight: aiInsight };
+  } catch (error) {
+    console.error("Regenerate AI Insight error:", error);
+    return { success: false, error: "Internal server error" };
+  }
+}
+
 async function getAIInsight(feedback: string, context: { exerciseName: string, instructions: string, workoutTitle: string }) {
   try {
     if (!process.env.NVIDIA_API_KEY) {
-      console.error("[AI Insight] NVIDIA_API_KEY is missing");
-      return "AI Insight unavailable: API key missing.";
+      console.error("[AI Insight] CRITICAL ERROR: NVIDIA_API_KEY is missing from environment variables.");
+      return "AI Insight unavailable: System configuration error (API Key Missing).";
     }
 
-    const systemPrompt = "You are an expert physical therapist analyzing a client's workout logs. Provide a short, 3-sentence insight on their progress and one area to focus on.";
+    // Define strict prompts
+    const systemPrompt = "You are an expert, encouraging physical therapist. Analyze the following client workout data. Provide a brief, 2-sentence insight on their progress, and 1 specific tip for their next session. Be professional but warm. Do not use markdown or lists.";
     
-    // Parse the data into a readable text string instead of sending raw JSON
-    const userPrompt = `Workout: ${context.workoutTitle}\nExercise: ${context.exerciseName}\nInstructions: ${context.instructions}\nClient Feedback: ${feedback}`;
+    // Payload Parsing: Clean, readable text string (No raw JSON)
+    const userPrompt = `Client completed ${context.exerciseName} as part of the ${context.workoutTitle} plan. Client Notes: ${feedback}`;
 
-    console.log("[AI Insight] Sending prompt to NVIDIA:", userPrompt);
+    console.log("[AI Insight] Requesting insight from NVIDIA...");
+    console.log("[AI Insight] Parsed Data String:", userPrompt);
 
     const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
       method: "POST",
@@ -140,7 +186,7 @@ async function getAIInsight(feedback: string, context: { exerciseName: string, i
         "Authorization": `Bearer ${process.env.NVIDIA_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "meta/llama3-8b-instruct",
+        model: "meta/llama3-70b-instruct",
         messages: [
           {
             role: "system",
@@ -151,32 +197,39 @@ async function getAIInsight(feedback: string, context: { exerciseName: string, i
             content: userPrompt,
           },
         ],
-        max_tokens: 200,
+        max_tokens: 250,
         temperature: 0.5,
         top_p: 1,
       }),
     });
 
+    // Aggressive Error Logging
     if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`[AI Insight] NVIDIA API error (${response.status}):`, errorBody);
-      return "Could not analyze feedback at this time.";
+      const status = response.status;
+      const errorText = await response.text();
+      console.error(`[AI Insight] NVIDIA API REJECTION - Status: ${status}`);
+      console.error(`[AI Insight] Rejection Reason: ${errorText}`);
+      
+      if (status === 401) return "AI Insight failed: Unauthorized. Please check the API key.";
+      if (status === 429) return "AI Insight failed: Rate limit exceeded.";
+      return `AI Insight failed: NVIDIA API returned status ${status}.`;
     }
 
     const data = await response.json();
     
-    // Log the raw text response for debugging
-    const rawContent = data.choices && data.choices[0]?.message?.content;
-    console.log("[AI Insight] Raw NVIDIA Response:", rawContent);
+    // Extract and log raw response for terminal debugging
+    const aiContent = data.choices?.[0]?.message?.content;
     
-    if (rawContent) {
-      return rawContent.trim();
+    if (aiContent) {
+      const cleanContent = aiContent.trim();
+      console.log("[AI Insight] RAW NVIDIA RESPONSE TEXT:", cleanContent);
+      return cleanContent;
     }
     
-    console.error("[AI Insight] Unexpected API response format:", JSON.stringify(data));
-    return "Could not analyze feedback at this time.";
-  } catch (error) {
-    console.error("[AI Insight] Fetch error:", error);
-    return "Could not analyze feedback at this time.";
+    console.error("[AI Insight] ERROR: Received empty or malformed response from NVIDIA:", JSON.stringify(data));
+    return "AI Insight failed: malformed response from AI provider.";
+  } catch (error: any) {
+    console.error("[AI Insight] FETCH EXCEPTION:", error);
+    return `AI Insight failed: ${error?.message || "Internal network error"}.`;
   }
 }

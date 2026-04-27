@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { getYouTubeEmbedUrl } from "@/lib/utils";
+import AIInsightRegenerator from "@/components/dashboard/AIInsightRegenerator";
 
 export default async function TherapistWorkoutDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: workoutId } = await params;
@@ -130,11 +131,15 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
                       </div>
                     )}
 
-                    {exercise.result.aiInsight && (
-                      <div className="p-3 bg-blue-50 text-blue-800 rounded-md text-xs border border-blue-100">
-                        <strong>AI Insight:</strong> {exercise.result.aiInsight}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold text-sm uppercase text-slate-400">AI Insight</h4>
+                        <AIInsightRegenerator resultId={exercise.result.id} />
                       </div>
-                    )}
+                      <div className="p-3 bg-blue-50 text-blue-800 rounded-md text-xs border border-blue-100">
+                        {exercise.result.aiInsight || "No analysis generated yet."}
+                      </div>
+                    </div>
 
                     {(exercise.result.notes || exercise.result.concerns) && (
                       <div className="pt-4 border-t border-slate-200 space-y-2">
