@@ -179,55 +179,62 @@ async function getAIInsight(feedback: string, context: { exerciseName: string, i
     console.log("[AI Insight] Requesting insight from NVIDIA...");
     console.log("[AI Insight] Parsed Data String:", userPrompt);
 
-    const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.NVIDIA_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "meta/llama3-70b-instruct",
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt,
-          },
-          {
-            role: "user",
-            content: userPrompt,
-          },
-        ],
-        max_tokens: 250,
-        temperature: 0.5,
-        top_p: 1,
-      }),
-    });
+    const models = ["meta/llama-3.1-70b-instruct", "meta/llama-3.1-8b-instruct"];
+    let lastError = null;
 
-    // Aggressive Error Logging
-    if (!response.ok) {
-      const status = response.status;
-      const errorText = await response.text();
-      console.error(`[AI Insight] NVIDIA API REJECTION - Status: ${status}`);
-      console.error(`[AI Insight] Rejection Reason: ${errorText}`);
-      
-      if (status === 401) return "AI Insight failed: Unauthorized. Please check the API key.";
-      if (status === 429) return "AI Insight failed: Rate limit exceeded.";
-      return `AI Insight failed: NVIDIA API returned status ${status}.`;
+    for (const model of models) {
+      try {
+        console.log(`[AI Insight] Attempting with model: ${model}`);
+        const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.NVIDIA_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              {
+                role: "system",
+                content: systemPrompt,
+              },
+              {
+                role: "user",
+                content: userPrompt,
+              },
+            ],
+            max_tokens: 250,
+            temperature: 0.5,
+            top_p: 1,
+          }),
+        });
+
+        // Aggressive Error Logging
+        if (!response.ok) {
+          const status = response.status;
+          const errorText = await response.text();
+          console.error('NVIDIA API ERROR:', status, errorText);
+          lastError = `NVIDIA API returned status ${status}.`;
+          continue; // Try next model
+        }
+
+        const data = await response.json();
+        
+        // Extract and log raw response for terminal debugging
+        const aiContent = data.choices?.[0]?.message?.content;
+        
+        if (aiContent) {
+          const cleanContent = aiContent.trim();
+          console.log("[AI Insight] RAW NVIDIA RESPONSE TEXT:", cleanContent);
+          return cleanContent;
+        }
+      } catch (err: any) {
+        console.error(`[AI Insight] Error with model ${model}:`, err);
+        lastError = err.message;
+      }
     }
 
-    const data = await response.json();
-    
-    // Extract and log raw response for terminal debugging
-    const aiContent = data.choices?.[0]?.message?.content;
-    
-    if (aiContent) {
-      const cleanContent = aiContent.trim();
-      console.log("[AI Insight] RAW NVIDIA RESPONSE TEXT:", cleanContent);
-      return cleanContent;
-    }
-    
-    console.error("[AI Insight] ERROR: Received empty or malformed response from NVIDIA:", JSON.stringify(data));
-    return "AI Insight failed: malformed response from AI provider.";
+    return `AI Insight failed: ${lastError || "Could not reach AI provider"}.`;
   } catch (error: any) {
     console.error("[AI Insight] FETCH EXCEPTION:", error);
     return `AI Insight failed: ${error?.message || "Internal network error"}.`;
