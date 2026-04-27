@@ -6,11 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Check, Edit2, Upload, Loader2 } from "lucide-react";
-import { submitExerciseResult } from "@/app/actions/exercise";
+import { submitExerciseResult, uploadExerciseImage } from "@/app/actions/exercise";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { getYouTubeEmbedUrl } from "@/lib/utils";
-import { uploadFile } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
 export default function ExerciseItem({ exercise }: { exercise: any }) {
@@ -30,11 +29,18 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
 
       if (mediaFile) {
         toast.info("Uploading photo...");
-        // Sanitize filename: exercise-{exerciseId}-{Date.now()}.jpg
-        const fileExt = mediaFile.name.split('.').pop() || 'jpg';
-        const fileName = `exercise-${exercise.id}-${Date.now()}.${fileExt}`;
+        const formData = new FormData();
+        formData.append("file", mediaFile);
+        formData.append("exerciseId", exercise.id);
         
-        mediaUrl = await uploadFile(mediaFile, 'exercise-media', undefined, fileName);
+        const uploadResult = await uploadExerciseImage(formData);
+        if (uploadResult.success) {
+          mediaUrl = uploadResult.url;
+        } else {
+          toast.error(uploadResult.error || "Failed to upload image");
+          setLoading(false);
+          return;
+        }
       }
 
       const result = await submitExerciseResult({
@@ -51,9 +57,10 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
       } else {
         toast.error(result.error || "Failed to submit");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Upload failed. Please try again with a smaller image or different format.");
+      const errorMsg = error.message || "Upload failed";
+      toast.error(`Upload failed: ${errorMsg}. Please try again.`);
     } finally {
       setLoading(false);
     }

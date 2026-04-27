@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Dumbbell, ShieldCheck, Zap, X, Smartphone, Share } from "lucide-react";
 import Logo from "@/components/ui/logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const images = [
   "/dashboardpic1.png",
@@ -18,6 +20,14 @@ export default function LandingPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPwaCard, setShowPwaCard] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status, router]);
 
   useEffect(() => {
     setMounted(true);
@@ -40,6 +50,17 @@ export default function LandingPage() {
     localStorage.setItem("pwa-tutorial-dismissed", "true");
     setShowPwaCard(false);
   };
+
+  if (status === "loading" || status === "authenticated") {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <Logo />
+          <p className="text-slate-400 text-sm">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

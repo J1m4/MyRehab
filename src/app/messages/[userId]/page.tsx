@@ -35,20 +35,20 @@ export default async function MessagePage({ params }: { params: Promise<{ userId
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] container mx-auto p-4">
-      <div className="flex items-center gap-4 mb-4">
-        <Button asChild variant="ghost" size="icon">
-          <Link href="/dashboard">
+    <div className="flex flex-col h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] w-full overflow-hidden bg-white">
+      <div className="flex items-center gap-4 p-4 border-b">
+        <Button asChild variant="ghost" size="icon" className="shrink-0">
+          <Link href="/messages">
             <ChevronLeft className="h-6 w-6" />
           </Link>
         </Button>
-        <div className="flex items-center gap-2">
-          <Avatar>
+        <div className="flex items-center gap-2 overflow-hidden">
+          <Avatar className="h-8 w-8 shrink-0">
             <AvatarFallback>{otherUser.name?.[0] || otherUser.email[0].toUpperCase()}</AvatarFallback>
           </Avatar>
-          <div>
-            <h2 className="font-bold">{otherUser.name || otherUser.email}</h2>
-            <p className="text-xs text-slate-500">Messaging</p>
+          <div className="overflow-hidden">
+            <h2 className="font-bold truncate">{otherUser.name || otherUser.email}</h2>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Athlete</p>
           </div>
         </div>
       </div>

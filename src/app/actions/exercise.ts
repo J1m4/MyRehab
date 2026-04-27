@@ -5,8 +5,62 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 import { revalidatePath } from "next/cache";
+import { createClient } from "@supabase/supabase-js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Initialize Supabase admin client with Service Role Key
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+);
+
+export async function uploadExerciseImage(formData: FormData) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== "CLIENT") {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = (session.user as any).id;
+    const exerciseId = formData.get("exerciseId") as string;
+    const file = formData.get("file") as File;
+
+    if (!file || !exerciseId) {
+      return { success: false, error: "Missing required fields" };
+    }
+
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const fileName = `exercise-${exerciseId}-${Date.now()}.${fileExt}`;
+    const filePath = fileName;
+
+    // Convert File to ArrayBuffer for Supabase upload
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const { data, error } = await supabaseAdmin.storage
+      .from('exercise-media')
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) {
+      console.error("Supabase Admin Exercise Image Upload Error:", error);
+      return { success: false, error: error.message };
+    }
+
+    const { data: { publicUrl } } = supabaseAdmin.storage
+      .from('exercise-media')
+      .getPublicUrl(filePath);
+
+    return { success: true, url: publicUrl };
+  } catch (error) {
+    console.error("Upload exercise image error:", error);
+    return { success: false, error: "Internal server error" };
+  }
+}
 
 export async function submitExerciseResult(data: {
   exerciseId: string;

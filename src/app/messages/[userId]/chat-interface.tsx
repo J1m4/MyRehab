@@ -112,10 +112,10 @@ export default function ChatInterface({
   }
 
   return (
-    <div className="flex flex-col h-[500px]">
+    <div className="flex flex-col flex-1 min-h-0 w-full">
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto space-y-4 p-4 border rounded-t-lg bg-white"
+        className="flex-1 overflow-y-auto space-y-4 p-4 bg-white"
       >
         {messages.map((msg) => {
           const isMe = msg.senderId === currentUserId;
@@ -124,11 +124,11 @@ export default function ChatInterface({
               key={msg.id} 
               className={`flex ${isMe ? "justify-end" : "justify-start"}`}
             >
-              <div className={`max-w-[80%] p-3 rounded-lg ${
+              <div className={`max-w-[85%] p-3 rounded-2xl ${
                 isMe ? "bg-slate-900 text-white rounded-br-none" : "bg-slate-100 text-slate-900 rounded-bl-none"
               }`}>
                 {msg?.imageUrl && (
-                  <div className="mb-2 rounded-md overflow-hidden bg-slate-200 min-w-[200px]">
+                  <div className="mb-2 rounded-lg overflow-hidden bg-slate-200 min-w-[200px]">
                     <img 
                       src={msg.imageUrl} 
                       alt="Shared image" 
@@ -147,21 +147,24 @@ export default function ChatInterface({
       </div>
 
       {imagePreview && (
-        <div className="p-2 border-x bg-slate-50 relative flex items-center gap-2">
-          <div className="relative w-16 h-16 rounded overflow-hidden border bg-white">
+        <div className="p-3 border-t bg-slate-50 relative flex items-center gap-3">
+          <div className="relative w-20 h-20 rounded-lg overflow-hidden border bg-white shadow-sm">
             <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
             <button 
               onClick={clearImage}
-              className="absolute top-0 right-0 bg-black/50 text-white p-0.5 rounded-bl"
+              className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full hover:bg-black/80 transition-colors"
             >
               <X className="h-3 w-3" />
             </button>
           </div>
-          <span className="text-xs text-slate-500 italic">Image attached</span>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-slate-700">Image attached</span>
+            <span className="text-xs text-slate-500">Ready to send</span>
+          </div>
         </div>
       )}
 
-      <form onSubmit={handleSend} className="p-4 border border-t-0 rounded-b-lg bg-slate-50 flex gap-2">
+      <form onSubmit={handleSend} className="p-4 border-t bg-white flex gap-2 items-center">
         <input 
           type="file" 
           ref={fileInputRef}
@@ -175,16 +178,18 @@ export default function ChatInterface({
           size="icon" 
           onClick={() => fileInputRef.current?.click()}
           disabled={loading}
+          className="shrink-0 text-slate-500"
         >
-          <ImageIcon className="h-5 w-5 text-slate-500" />
+          <ImageIcon className="h-5 w-5" />
         </Button>
         <Input 
           placeholder="Type a message..." 
           value={content}
           onChange={(e) => setContent(e.target.value)}
           disabled={loading}
+          className="flex-1 bg-slate-100 border-none focus-visible:ring-1 focus-visible:ring-slate-300"
         />
-        <Button type="submit" size="icon" disabled={loading || (!content.trim() && !selectedImage)}>
+        <Button type="submit" size="icon" disabled={loading || (!content.trim() && !selectedImage)} className="shrink-0 rounded-full">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </form>

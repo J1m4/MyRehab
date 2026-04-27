@@ -142,7 +142,7 @@ export default function AccountPage() {
             <CardDescription>{session.user?.email}</CardDescription>
             <div className="mt-2">
               <Badge variant="outline">
-                {(session.user as any).role}
+                {(session.user as any).role === "THERAPIST" ? "Coach" : "Athlete"}
               </Badge>
             </div>
           </div>
