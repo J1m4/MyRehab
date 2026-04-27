@@ -2,20 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Play, Pause, RotateCcw, Timer as TimerIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { TimePickerWheel } from "@/components/ui/time-picker-wheel";
+import { useTimerAudio } from "@/hooks/use-timer-audio";
 
 export default function TimersPage() {
   return (
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex items-center gap-2">
         <TimerIcon className="h-6 w-6 text-slate-700" />
-        <h1 className="text-2xl font-bold">Timers</h1>
+        <h1 className="text-2xl font-bold">Training Timers</h1>
       </div>
 
       <Tabs defaultValue="stopwatch" className="w-full">
@@ -44,6 +45,7 @@ export default function TimersPage() {
 function Stopwatch() {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const { playStop } = useTimerAudio();
 
   useEffect(() => {
     let interval: any = null;
@@ -56,6 +58,17 @@ function Stopwatch() {
     }
     return () => clearInterval(interval);
   }, [isActive]);
+
+  const toggle = () => {
+    if (isActive) playStop();
+    setIsActive(!isActive);
+  };
+
+  const reset = () => {
+    playStop();
+    setTime(0);
+    setIsActive(false);
+  };
 
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / 60000);
@@ -73,12 +86,12 @@ function Stopwatch() {
         <Button 
           variant={isActive ? "outline" : "default"} 
           size="lg" 
-          onClick={() => setIsActive(!isActive)}
+          onClick={toggle}
         >
           {isActive ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
           {isActive ? "Pause" : "Start"}
         </Button>
-        <Button variant="ghost" size="lg" onClick={() => { setTime(0); setIsActive(false); }}>
+        <Button variant="ghost" size="lg" onClick={reset}>
           <RotateCcw className="mr-2 h-4 w-4" /> Reset
         </Button>
       </div>
@@ -91,6 +104,7 @@ function Countdown() {
   const [inputMinutes, setInputMinutes] = useState(1);
   const [inputSeconds, setInputSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const { playStop } = useTimerAudio();
 
   useEffect(() => {
     let interval: any = null;
@@ -98,18 +112,30 @@ function Countdown() {
       interval = setInterval(() => {
         setTimeLeft((time) => time - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
+    } else if (isActive && timeLeft === 0) {
+      playStop();
       setIsActive(false);
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft]);
+  }, [isActive, timeLeft, playStop]);
 
   const startTimer = () => {
     if (!isActive && timeLeft === 0) {
       setTimeLeft(inputMinutes * 60 + inputSeconds);
     }
     setIsActive(true);
+  };
+
+  const toggle = () => {
+    if (isActive) playStop();
+    setIsActive(!isActive);
+  };
+
+  const reset = () => {
+    playStop();
+    setTimeLeft(0);
+    setIsActive(false);
   };
 
   const formatTime = (seconds: number) => {
@@ -137,13 +163,13 @@ function Countdown() {
         <Button 
           variant={isActive ? "outline" : "default"} 
           size="lg" 
-          onClick={isActive ? () => setIsActive(false) : startTimer}
+          onClick={isActive ? () => { playStop(); setIsActive(false); } : startTimer}
           disabled={!isActive && timeLeft === 0 && inputMinutes === 0 && inputSeconds === 0}
         >
           {isActive ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
           {isActive ? "Pause" : "Start"}
         </Button>
-        <Button variant="ghost" size="lg" onClick={() => { setTimeLeft(0); setIsActive(false); }}>
+        <Button variant="ghost" size="lg" onClick={reset}>
           <RotateCcw className="mr-2 h-4 w-4" /> Reset
         </Button>
       </div>
@@ -162,6 +188,7 @@ function IntervalTimer() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [phase, setPhase] = useState<"WORK" | "REST" | "READY">("READY");
   const [isActive, setIsActive] = useState(false);
+  const { playStop, playLap } = useTimerAudio();
 
   useEffect(() => {
     let interval: any = null;
@@ -172,20 +199,23 @@ function IntervalTimer() {
     } else if (isActive && timeLeft === 0) {
       if (phase === "WORK") {
         if (currentSet < sets) {
+          playLap(); // Rest starts
           setPhase("REST");
           setTimeLeft(restMinutes * 60 + restSeconds);
         } else {
+          playStop(); // Workout finished
           setIsActive(false);
           setPhase("READY");
         }
       } else if (phase === "REST") {
+        playLap(); // Work starts
         setCurrentSet(s => s + 1);
         setPhase("WORK");
         setTimeLeft(workMinutes * 60 + workSeconds);
       }
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft, phase, currentSet, sets, restMinutes, restSeconds, workMinutes, workSeconds]);
+  }, [isActive, timeLeft, phase, currentSet, sets, restMinutes, restSeconds, workMinutes, workSeconds, playStop, playLap]);
 
   const start = () => {
     if (phase === "READY") {
@@ -194,6 +224,12 @@ function IntervalTimer() {
       setCurrentSet(1);
     }
     setIsActive(true);
+  };
+
+  const stop = () => {
+    playStop();
+    setIsActive(false);
+    setPhase("READY");
   };
 
   const formatTime = (seconds: number) => {
@@ -216,10 +252,10 @@ function IntervalTimer() {
             Set {currentSet} of {sets}
           </div>
           <div className="flex gap-4">
-            <Button variant="outline" onClick={() => setIsActive(!isActive)}>
+            <Button variant="outline" onClick={() => { if (isActive) playStop(); setIsActive(!isActive); }}>
               {isActive ? "Pause" : "Resume"}
             </Button>
-            <Button variant="ghost" onClick={() => { setIsActive(false); setPhase("READY"); }}>
+            <Button variant="ghost" onClick={stop}>
               Stop
             </Button>
           </div>

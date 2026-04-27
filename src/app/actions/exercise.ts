@@ -76,13 +76,13 @@ export async function submitExerciseResult(data: {
         data: { status: "COMPLETED" },
       });
 
-      // Notify therapist
+      // Notify coach
       if (process.env.RESEND_API_KEY && exercise.workout.therapist.email) {
         await resend.emails.send({
-          from: "MyRehab <notifications@resend.dev>",
+          from: "MyCoach <notifications@resend.dev>",
           to: exercise.workout.therapist.email,
-          subject: "Workout Completed",
-          html: `<p>Hello!</p><p>Your client <strong>${exercise.workout.client.name || exercise.workout.client.email}</strong> has completed their workout: <strong>${exercise.workout.title}</strong></p>`,
+          subject: "Training Session Completed",
+          html: `<p>Hello!</p><p>Your athlete <strong>${exercise.workout.client.name || exercise.workout.client.email}</strong> has completed their training session: <strong>${exercise.workout.title}</strong></p>`,
         });
       }
     }
@@ -115,7 +115,7 @@ export async function savePTFeedback(data: {
 
     return { success: true };
   } catch (error) {
-    console.error("Save PT feedback error:", error);
+    console.error("Save coaching feedback error:", error);
     return { success: false, error: "Internal server error" };
   }
 }
@@ -171,10 +171,10 @@ async function getAIInsight(feedback: string, context: { exerciseName: string, i
     }
 
     // Define strict prompts
-    const systemPrompt = "You are an expert, encouraging physical therapist. Analyze the following client workout data. Provide a brief, 2-sentence insight on their progress, and 1 specific tip for their next session. Be professional but warm. Do not use markdown or lists.";
+    const systemPrompt = "You are an expert, encouraging performance coach. Analyze the following athlete workout data. Provide a brief, 2-sentence insight on their progress, and 1 specific tip for their next session. Be professional but warm. Do not use markdown or lists.";
     
     // Payload Parsing: Clean, readable text string (No raw JSON)
-    const userPrompt = `Client completed ${context.exerciseName} as part of the ${context.workoutTitle} plan. Client Notes: ${feedback}`;
+    const userPrompt = `Athlete completed ${context.exerciseName} as part of the ${context.workoutTitle} training plan. Athlete Notes: ${feedback}`;
 
     console.log("[AI Insight] Requesting insight from NVIDIA...");
     console.log("[AI Insight] Parsed Data String:", userPrompt);

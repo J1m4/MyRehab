@@ -24,7 +24,7 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
   const workout = await prisma.workout.findUnique({
     where: { 
       id: workoutId,
-      therapistId, // Security: Ensure this workout belongs to this therapist
+      therapistId, // Security: Ensure this workout belongs to this coach
     },
     include: {
       client: true,
@@ -39,9 +39,9 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
   if (!workout) {
     return (
       <div className="container mx-auto p-4 text-center">
-        <h1 className="text-2xl font-bold">Workout not found</h1>
+        <h1 className="text-2xl font-bold">Training Plan not found</h1>
         <Button asChild variant="link" className="mt-4">
-          <Link href="/dashboard/therapist">Back to Dashboard</Link>
+          <Link href="/dashboard/therapist">Back to Coach Dashboard</Link>
         </Button>
       </div>
     );
@@ -79,7 +79,7 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
                 <div className="ml-4">
                   {exercise.status === "COMPLETED" ? (
                     <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-                      <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
+                      <CheckCircle2 className="mr-1 h-3 w-3" /> Done
                     </Badge>
                   ) : (
                     <Badge variant="outline">Pending</Badge>
@@ -117,23 +117,23 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
                 {exercise.result && (
                   <div className="mt-4 p-4 rounded-lg bg-slate-50 border border-slate-100 space-y-4">
                     <h4 className="font-semibold text-sm uppercase text-slate-400 flex items-center gap-2">
-                      <FileText className="h-4 w-4" /> Client Feedback
+                      <FileText className="h-4 w-4" /> Athlete Feedback
                     </h4>
                     <p className="text-sm">"{exercise.result.feedback || "No feedback provided."}"</p>
                     
                     {exercise.result.mediaUrl && (
-                      <div className="mt-2">
-                        {exercise.result.mediaUrl.match(/\.(mp4|mov|webm)$/) ? (
-                          <video src={exercise.result.mediaUrl} controls className="w-full max-h-64 rounded-md bg-black" />
-                        ) : (
-                          <img src={exercise.result.mediaUrl} alt="Client result" className="w-full max-h-64 object-cover rounded-md" />
-                        )}
+                      <div className="mt-2 rounded-md overflow-hidden border bg-slate-100">
+                        <img 
+                          src={exercise.result.mediaUrl} 
+                          alt="Athlete performance proof" 
+                          className="w-full max-h-96 object-contain" 
+                        />
                       </div>
                     )}
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 border-t pt-4">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-semibold text-sm uppercase text-slate-400">AI Insight</h4>
+                        <h4 className="font-semibold text-sm uppercase text-slate-400">AI Performance Insight</h4>
                         <AIInsightRegenerator resultId={exercise.result.id} />
                       </div>
                       <div className="p-3 bg-blue-50 text-blue-800 rounded-md text-xs border border-blue-100">
@@ -146,13 +146,13 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
                         <h4 className="font-semibold text-sm uppercase text-slate-400">Your Review</h4>
                         {exercise.result.notes && (
                           <div className="text-sm">
-                            <span className="font-medium text-slate-700">Notes:</span> {exercise.result.notes}
+                            <span className="font-medium text-slate-700">Coaching Notes:</span> {exercise.result.notes}
                           </div>
                         )}
                         {exercise.result.concerns && (
                           <div className="text-sm flex items-start gap-2 text-orange-700 bg-orange-50 p-2 rounded">
                             <AlertCircle className="h-4 w-4 mt-0.5" />
-                            <div><span className="font-medium">Concerns:</span> {exercise.result.concerns}</div>
+                            <div><span className="font-medium">Flags:</span> {exercise.result.concerns}</div>
                           </div>
                         )}
                       </div>

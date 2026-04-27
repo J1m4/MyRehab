@@ -81,7 +81,7 @@ export default function LandingPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-slate-300">
-                  For the best experience, add MyRehab to your home screen!
+                  For the best experience, add MyCoach to your home screen!
                 </p>
                 <div className="flex items-start gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700">
                   <div className="bg-slate-700 p-2 rounded shrink-0">
@@ -118,10 +118,10 @@ export default function LandingPage() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-white">
-                  Better Recovery, <br /> Together.
+                  Elite Coaching, <br /> Personalized.
                 </h1>
                 <p className="mx-auto max-w-[700px] text-slate-200 md:text-xl">
-                  Connecting physical therapists and clients for personalized, data-driven recovery.
+                  Connecting performance coaches and athletes for data-driven training and recovery.
                 </p>
               </div>
               <div className="space-x-4">
@@ -143,14 +143,14 @@ export default function LandingPage() {
                 <ShieldCheck className="h-10 w-10 text-slate-900" />
                 <h3 className="text-xl font-bold">Secure Tracking</h3>
                 <p className="text-sm text-slate-500 text-center">
-                  Your recovery data is encrypted and shared only with your therapist.
+                  Your training data is encrypted and shared only with your coach.
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-2 p-4 rounded-lg bg-white shadow-sm">
                 <Zap className="h-10 w-10 text-slate-900" />
                 <h3 className="text-xl font-bold">AI-Powered Insights</h3>
                 <p className="text-sm text-slate-500 text-center">
-                  Get instant feedback analysis to help your therapist optimize your plan.
+                  Get instant performance analysis to help your coach optimize your plan.
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-2 p-4 rounded-lg bg-white shadow-sm">
@@ -165,7 +165,7 @@ export default function LandingPage() {
         </section>
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-        <p className="text-xs text-slate-500">© 2026 MyRehab Inc. All rights reserved.</p>
+        <p className="text-xs text-slate-500">© 2026 MyCoach Inc. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link className="text-xs hover:underline underline-offset-4" href="#">
             Terms of Service

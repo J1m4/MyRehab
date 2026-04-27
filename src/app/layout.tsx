@@ -15,13 +15,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MyRehab - PT Platform",
-  description: "Connect with your physical therapist and track your progress.",
+  title: "MyCoach - Performance Platform",
+  description: "Connect with your coach and track your training progress.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "MyRehab",
+    title: "MyCoach",
   },
   icons: {
     apple: "/laneonept.png",

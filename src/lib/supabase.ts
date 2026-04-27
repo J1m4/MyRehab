@@ -7,8 +7,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function uploadFile(
   file: File,
-  bucket: 'exercise-videos' | 'profile-pictures' | 'avatars' | 'message-attachments',
-  userId?: string
+  bucket: 'exercise-videos' | 'profile-pictures' | 'avatars' | 'message-attachments' | 'exercise-media',
+  userId?: string,
+  customFileName?: string
 ) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     throw new Error("Supabase credentials are not configured.");
@@ -30,21 +31,21 @@ export async function uploadFile(
       });
       
       fileToUpload = Array.isArray(blob) ? blob[0] : blob;
-      fileName = userId 
-        ? `${userId}-${timestamp}.jpg`
-        : `${Math.random().toString(36).substring(2)}-${timestamp}.jpg`;
+      fileName = customFileName 
+        ? (customFileName.endsWith('.jpg') ? customFileName : `${customFileName}.jpg`)
+        : (userId ? `${userId}-${timestamp}.jpg` : `${Math.random().toString(36).substring(2)}-${timestamp}.jpg`);
     } catch (e) {
       console.error("[Supabase Upload] HEIC conversion failed, uploading original:", e);
       const fileExt = file.name.split('.').pop() || 'heic';
-      fileName = userId 
+      fileName = customFileName || (userId 
         ? `${userId}-${timestamp}.${fileExt}`
-        : `${Math.random().toString(36).substring(2)}-${timestamp}.${fileExt}`;
+        : `${Math.random().toString(36).substring(2)}-${timestamp}.${fileExt}`);
     }
   } else {
     const fileExt = file.name.split('.').pop() || 'jpg';
-    fileName = userId 
+    fileName = customFileName || (userId 
       ? `${userId}-${timestamp}.${fileExt}`
-      : `${Math.random().toString(36).substring(2)}-${timestamp}.${fileExt}`;
+      : `${Math.random().toString(36).substring(2)}-${timestamp}.${fileExt}`);
   }
   
   const filePath = fileName;

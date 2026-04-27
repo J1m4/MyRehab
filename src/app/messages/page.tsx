@@ -56,8 +56,8 @@ export default async function MessagesListPage() {
                 <CardTitle>No conversations yet</CardTitle>
                 <CardDescription>
                   {role === "THERAPIST" 
-                    ? "Invite a client to start communicating." 
-                    : "You'll see your therapist here once connected."}
+                    ? "Invite an athlete to start communicating." 
+                    : "You'll see your coach here once connected."}
                 </CardDescription>
               </div>
             </CardContent>

@@ -55,10 +55,10 @@ function WorkoutForm({ clientId }: { clientId: string }) {
       });
 
       if (result.success) {
-        toast.success("Workout created successfully");
+        toast.success("Training plan created successfully");
         router.push(`/dashboard/therapist/client/${clientId}`);
       } else {
-        toast.error(result.error || "Failed to create workout");
+        toast.error(result.error || "Failed to create training plan");
       }
     } catch (error) {
       toast.error("Something went wrong");
@@ -72,7 +72,7 @@ function WorkoutForm({ clientId }: { clientId: string }) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card>
           <CardHeader>
-            <CardTitle>Workout Details</CardTitle>
+            <CardTitle>Training Plan Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -80,9 +80,9 @@ function WorkoutForm({ clientId }: { clientId: string }) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Workout Title</FormLabel>
+                  <FormLabel>Plan Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Lower Back Rehab - Phase 1" {...field} />
+                    <Input placeholder="Marathon Prep - Week 1" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -141,7 +141,7 @@ function WorkoutForm({ clientId }: { clientId: string }) {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Bird-Dog" {...field} />
+                        <Input placeholder="e.g., Interval Sprints" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -155,7 +155,7 @@ function WorkoutForm({ clientId }: { clientId: string }) {
                       <FormLabel>Instructions</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Detailed instructions on how to perform the exercise safely..." 
+                          placeholder="Detailed instructions for the athlete..." 
                           {...field} 
                         />
                       </FormControl>
@@ -187,7 +187,7 @@ function WorkoutForm({ clientId }: { clientId: string }) {
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? "Creating..." : "Create Workout"}
+            {loading ? "Creating..." : "Create Plan"}
           </Button>
         </div>
       </form>
@@ -207,8 +207,8 @@ export default function CreateWorkoutPage({ params }: { params: Promise<{ id: st
   return (
     <div className="container mx-auto p-4 max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">New Workout</h1>
-        <p className="text-slate-500">Design a workout plan for your client</p>
+        <h1 className="text-3xl font-bold">New Training Plan</h1>
+        <p className="text-slate-500">Design a training plan for your athlete</p>
       </div>
 
       <Suspense fallback={<div>Loading form...</div>}>

@@ -45,19 +45,19 @@ export async function createWorkout(data: {
       },
     });
 
-    // Send notification email to client
+    // Send notification email to athlete
     if (process.env.RESEND_API_KEY && workout.client.email) {
       await resend.emails.send({
-        from: "MyRehab <notifications@resend.dev>",
+        from: "MyCoach <notifications@resend.dev>",
         to: workout.client.email,
-        subject: "New Workout Assigned",
-        html: `<p>Hello!</p><p>Your therapist has assigned a new workout: <strong>${title}</strong></p><p>Log in to view your tasks.</p>`,
+        subject: "New Training Plan Assigned",
+        html: `<p>Hello!</p><p>Your coach has assigned a new training plan: <strong>${title}</strong></p><p>Log in to view your tasks.</p>`,
       });
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Create workout error:", error);
+    console.error("Create training plan error:", error);
     return { success: false, error: "Internal server error" };
   }
 }

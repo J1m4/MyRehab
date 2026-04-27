@@ -1,7 +1,7 @@
 {
-  "name": "MyRehab",
-  "short_name": "MyRehab",
-  "description": "Personalized physical therapy and recovery tracking.",
+  "name": "MyCoach",
+  "short_name": "MyCoach",
+  "description": "Personalized coaching and performance tracking.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

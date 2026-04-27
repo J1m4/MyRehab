@@ -44,10 +44,10 @@ export default function PTReviewForm({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor={`notes-${resultId}`} className="text-xs">Clinical Notes</Label>
+        <Label htmlFor={`notes-${resultId}`} className="text-xs">Coaching Notes</Label>
         <Textarea 
           id={`notes-${resultId}`}
-          placeholder="Clinical observations..."
+          placeholder="Session observations..."
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           className="text-sm"

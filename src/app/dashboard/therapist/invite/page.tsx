@@ -41,7 +41,7 @@ export default function InviteClientPage() {
           <CardHeader>
             <CardTitle>Invite Generated</CardTitle>
             <CardDescription>
-              Share this link with your client so they can sign up.
+              Share this link with your athlete so they can sign up.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -60,7 +60,7 @@ export default function InviteClientPage() {
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" onClick={() => router.push("/dashboard/therapist")}>
-              Back to Dashboard
+              Back to Coach Dashboard
             </Button>
           </CardFooter>
         </Card>
@@ -72,19 +72,19 @@ export default function InviteClientPage() {
     <div className="container mx-auto p-4 flex justify-center py-12">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Invite a Client</CardTitle>
+          <CardTitle>Invite an Athlete</CardTitle>
           <CardDescription>
-            Enter the client's email address to send them an invitation link.
+            Enter the athlete's email address to send them an invitation link to MyCoach.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Client Email</Label>
+              <Label htmlFor="email">Athlete Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="client@example.com"
+                placeholder="athlete@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

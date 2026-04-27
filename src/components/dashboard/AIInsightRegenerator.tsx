@@ -14,9 +14,9 @@ export default function AIInsightRegenerator({ resultId }: { resultId: string })
     try {
       const result = await regenerateAIInsight(resultId);
       if (result.success) {
-        toast.success("AI Insight updated!");
+        toast.success("Performance Analysis updated!");
       } else {
-        toast.error(result.error || "Failed to regenerate insight");
+        toast.error(result.error || "Failed to regenerate analysis");
       }
     } catch (error) {
       toast.error("Something went wrong");
@@ -41,7 +41,7 @@ export default function AIInsightRegenerator({ resultId }: { resultId: string })
       ) : (
         <>
           <Sparkles className="h-3.5 w-3.5 text-blue-500" />
-          Regenerate AI Analysis
+          Regenerate Performance Analysis
         </>
       )}
     </Button>

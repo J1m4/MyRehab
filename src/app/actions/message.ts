@@ -45,7 +45,7 @@ export async function sendMessage(data: {
     if (process.env.RESEND_API_KEY && message.receiver.email) {
       try {
         await resend.emails.send({
-          from: "MyRehab <notifications@resend.dev>",
+          from: "MyCoach <notifications@resend.dev>",
           to: message.receiver.email,
           subject: "New Message Received",
           html: `<p>Hello!</p><p>You have received a new message from <strong>${message.sender.name || message.sender.email}</strong>:</p><p><em>"${content || (imageUrl ? "[Image]" : "")}"</em></p><p>Log in to reply.</p>`,

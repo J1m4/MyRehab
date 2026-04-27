@@ -59,7 +59,7 @@ export default async function CompletedExercisesPage({
         </Button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold">
-            {resultId ? "Review Exercise" : "Completed Exercises"}
+            {resultId ? "Review Session" : "Completed Sessions"}
           </h1>
           {resultId && completedResults[0] && (
             <p className="text-slate-500">
@@ -73,7 +73,7 @@ export default async function CompletedExercisesPage({
         {completedResults.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center text-slate-500">
-              {resultId ? "Exercise result not found." : "No completed exercises found."}
+              {resultId ? "Session result not found." : "No completed sessions found."}
             </CardContent>
           </Card>
         ) : (
@@ -83,24 +83,24 @@ export default async function CompletedExercisesPage({
                 <div>
                   <CardTitle>{result.exercise.name}</CardTitle>
                   <p className="text-sm text-slate-500">
-                    Workout: {result.exercise.workout.title} | {new Date(result.createdAt).toLocaleDateString()}
+                    Plan: {result.exercise.workout.title} | {new Date(result.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <Badge variant="secondary" className="bg-green-100 text-green-700">
-                  <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
+                  <CheckCircle2 className="mr-1 h-3 w-3" /> Done
                 </Badge>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-slate-400 uppercase">Client Feedback</h4>
+                    <h4 className="text-sm font-semibold text-slate-400 uppercase">Athlete Feedback</h4>
                     <p className="text-sm bg-slate-50 p-3 rounded-md italic">
                       "{result.feedback || "No feedback provided."}"
                     </p>
                     
                     <div className="mt-4 space-y-2">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-slate-400 uppercase">AI Insight</h4>
+                        <h4 className="text-sm font-semibold text-slate-400 uppercase">AI Performance Insight</h4>
                         <AIInsightRegenerator resultId={result.id} />
                       </div>
                       <div className="p-3 bg-blue-50 text-blue-800 rounded-md text-xs border border-blue-100">
@@ -120,7 +120,7 @@ export default async function CompletedExercisesPage({
                   </div>
                   
                   <div className="space-y-4">
-                    <h4 className="text-sm font-semibold text-slate-400 uppercase">Therapist Review</h4>
+                    <h4 className="text-sm font-semibold text-slate-400 uppercase">Coach Review</h4>
                     <PTReviewForm resultId={result.id} initialNotes={result.notes || ""} initialConcerns={result.concerns || ""} />
                   </div>
                 </div>

@@ -9,13 +9,13 @@ export default function ClientDashboard({ workouts }: { workouts: any[] }) {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">My Dashboard</h1>
-          <p className="text-slate-500">Track your recovery progress on the calendar</p>
+          <p className="text-slate-500">Track your training progress on the calendar</p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>My Recovery Calendar</CardTitle>
+          <CardTitle>My Training Calendar</CardTitle>
         </CardHeader>
         <CardContent>
           <ClientCalendarView workouts={workouts} clientId="" />

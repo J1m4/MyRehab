@@ -34,10 +34,10 @@ export async function inviteClient(email: string) {
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "your-resend-api-key") {
       try {
         await resend.emails.send({
-          from: "MyRehab <onboarding@resend.dev>",
+          from: "MyCoach <onboarding@resend.dev>",
           to: email,
-          subject: "You've been invited to MyRehab",
-          html: `<p>Hello!</p><p>Your physical therapist has invited you to join MyRehab.</p><p>Click the link below to create your account:</p><a href="${inviteLink}">${inviteLink}</a>`,
+          subject: "You've been invited to MyCoach",
+          html: `<p>Hello!</p><p>Your performance coach has invited you to join MyCoach.</p><p>Click the link below to create your account and start your training:</p><a href="${inviteLink}">${inviteLink}</a>`,
         });
         emailSent = true;
       } catch (e) {

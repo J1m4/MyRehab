@@ -9,7 +9,7 @@ import ClientCalendarView from "@/components/dashboard/ClientCalendarView";
 export default async function ClientWorkoutsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: clientId } = await params;
   const session = await getServerSession(authOptions);
-  
+
   if (!session || (session.user as any).role !== "THERAPIST") {
     return <div>Unauthorized</div>;
   }
@@ -21,7 +21,7 @@ export default async function ClientWorkoutsPage({ params }: { params: Promise<{
   });
 
   if (!client) {
-    return <div>Client not found</div>;
+    return <div>Athlete not found</div>;
   }
 
   const workouts = await prisma.workout.findMany({
@@ -47,16 +47,17 @@ export default async function ClientWorkoutsPage({ params }: { params: Promise<{
         </Button>
         <div className="flex-1">
           <h1 className="text-3xl font-bold">{client.name || client.email}</h1>
-          <p className="text-slate-500">Manage workouts and track progress</p>
+          <p className="text-slate-500">Manage training plans and track performance</p>
         </div>
         <Button asChild>
           <Link href={`/dashboard/therapist/client/${clientId}/workout/new`}>
-            <Plus className="mr-2 h-4 w-4" /> Create Workout
+            <Plus className="mr-2 h-4 w-4" /> Create Training Plan
           </Link>
         </Button>
       </div>
 
-      <ClientCalendarView workouts={workouts} isTherapist={true} />
+      <ClientCalendarView workouts={workouts} isTherapist={true} clientId={clientId} />
     </div>
   );
 }
+

@@ -60,8 +60,8 @@ function SignupForm() {
           <CardTitle>Create Account</CardTitle>
           <CardDescription>
             {token 
-              ? "Complete your registration to join MyRehab" 
-              : "Join MyRehab to manage your recovery"}
+              ? "Complete your registration to join MyCoach" 
+              : "Join MyCoach to manage your training"}
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -76,11 +76,11 @@ function SignupForm() {
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="THERAPIST" id="therapist" />
-                    <Label htmlFor="therapist">Physical Therapist</Label>
+                    <Label htmlFor="therapist">Coach</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="CLIENT" id="client" />
-                    <Label htmlFor="client">Client</Label>
+                    <Label htmlFor="client">Athlete</Label>
                   </div>
                 </RadioGroup>
               </div>

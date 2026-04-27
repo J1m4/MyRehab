@@ -1,24 +1,26 @@
-# MyRehab - Physical Therapy Platform
+# MyCoach - Performance Coaching Platform
 
-A production-ready web application connecting physical therapists and clients.
+A production-ready web application connecting performance coaches and athletes.
+
+**Live Demo:** [https://my-rehab-seven.vercel.app](https://my-rehab-seven.vercel.app)
 
 ## Features
-- **Therapist Dashboard:** Invite clients, assign workouts with YouTube videos and instructions, track progress.
-- **Client Dashboard:** View assigned workouts, submit results (feedback + media), track completion.
-- **Real-time Messaging:** Chat between therapists and clients.
-- **AI Insights:** Automated analysis of client feedback using NVIDIA NIM API to detect pain points and trends.
+- **Coach Dashboard:** Invite athletes, assign training plans with YouTube videos and instructions, track performance.
+- **Athlete Dashboard:** View assigned training plans, submit results (feedback + photo proof), track performance on a calendar.
+- **Real-time Messaging:** Chat between coaches and athletes with image sharing.
+- **AI Insights:** Automated performance analysis using NVIDIA NIM API to detect trends and provide tips.
 - **PWA:** Installable on mobile devices with offline capabilities.
-- **Timers:** Built-in stopwatch, countdown, and interval timers for exercises.
+- **Training Timers:** Built-in stopwatch, countdown, and interval timers with audio cues.
 - **Secure Auth:** Role-based access control with email/password authentication.
 
 ## Tech Stack
 - **Frontend:** Next.js 15 (App Router), Tailwind CSS, shadcn/ui.
 - **Backend:** Next.js Server Actions, Prisma ORM.
-- **Database:** PostgreSQL.
+- **Database:** PostgreSQL (Supabase).
 - **Authentication:** NextAuth.js.
 - **Email:** Resend.
-- **AI:** NVIDIA NIM API (`meta/llama3-8b-instruct`).
-- **Storage:** Cloudinary.
+- **AI:** NVIDIA NIM API (Llama 3.1).
+- **Storage:** Supabase Storage (exercise-media, avatars).
 
 ## Getting Started
 
@@ -32,26 +34,23 @@ A production-ready web application connecting physical therapists and clients.
    ```bash
    npm install
    ```
-3. Set up environment variables:
-   Copy `.env.example` to `.env` and fill in the values.
-4. Initialize the database:
+3. Set up environment variables (.env):
+   - `DATABASE_URL`
+   - `NEXTAUTH_SECRET`
+   - `NEXTAUTH_URL`
+   - `RESEND_API_KEY`
+   - `NVIDIA_API_KEY`
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+
+4. Run migrations:
    ```bash
-   npx prisma generate
-   npx prisma db push
+   npx prisma migrate dev
    ```
-5. Run the development server:
+5. Start the development server:
    ```bash
    npm run dev
    ```
-
-## Project Structure
-- `src/app/dashboard`: Role-specific dashboards.
-- `src/app/workout`: Workout details and exercise tracking.
-- `src/app/messages`: Messaging interface.
-- `src/app/timers`: Timer utilities.
-- `src/app/actions`: Server actions for database and API operations.
-- `src/lib`: Shared utilities (Prisma, Auth).
-- `src/components`: Reusable UI components.
-
 ## License
 MIT

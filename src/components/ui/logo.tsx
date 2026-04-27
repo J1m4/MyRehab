@@ -14,7 +14,7 @@ export default function Logo({ className }: { className?: string }) {
           sizes="(max-width: 768px) 32px, 32px"
         />
       </div>
-      <span className="font-bold text-xl tracking-tight hidden sm:inline-block">MyRehab</span>
+      <span className="font-bold text-xl tracking-tight hidden sm:inline-block">MyCoach</span>
     </div>
   );
 }

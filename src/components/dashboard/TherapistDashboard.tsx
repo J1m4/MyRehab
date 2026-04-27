@@ -9,10 +9,10 @@ export default function TherapistDashboard({ clients }: { clients: any[] }) {
   return (
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Therapist Dashboard</h1>
+        <h1 className="text-3xl font-bold">Coach Dashboard</h1>
         <Button asChild>
           <Link href="/dashboard/therapist/invite">
-            <Plus className="mr-2 h-4 w-4" /> Invite Client
+            <Plus className="mr-2 h-4 w-4" /> Invite Athlete
           </Link>
         </Button>
       </div>
@@ -23,13 +23,13 @@ export default function TherapistDashboard({ clients }: { clients: any[] }) {
             <CardContent className="flex flex-col items-center justify-center text-center space-y-4">
               <Users className="h-12 w-12 text-slate-300" />
               <div className="space-y-2">
-                <CardTitle>No clients yet</CardTitle>
+                <CardTitle>No athletes yet</CardTitle>
                 <CardDescription>
-                  Invite your first client to start assigning workouts.
+                  Invite your first athlete to start assigning training plans.
                 </CardDescription>
               </div>
               <Button asChild variant="outline">
-                <Link href="/dashboard/therapist/invite">Invite Client</Link>
+                <Link href="/dashboard/therapist/invite">Invite Athlete</Link>
               </Button>
             </CardContent>
           </Card>
@@ -43,7 +43,7 @@ export default function TherapistDashboard({ clients }: { clients: any[] }) {
               <CardContent className="p-4 flex gap-2">
                 <Button asChild variant="outline" size="sm" className="flex-1">
                   <Link href={`/dashboard/therapist/client/${relation.client.id}`}>
-                    <Dumbbell className="mr-2 h-4 w-4" /> Workouts
+                    <Dumbbell className="mr-2 h-4 w-4" /> Training
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="flex-1">
