@@ -6,11 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CheckCircle2, AlertCircle, MessageSquare } from "lucide-react";
+import { CheckCircle2, ChevronLeft } from "lucide-react";
 import PTReviewForm from "./pt-review-form";
 
-export default async function CompletedExercisesPage() {
+export default async function CompletedExercisesPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ id?: string }> 
+}) {
   const session = await getServerSession(authOptions);
+  const { id: resultId } = await searchParams;
   
   if (!session || (session.user as any).role !== "THERAPIST") {
     redirect("/login");
@@ -20,6 +25,7 @@ export default async function CompletedExercisesPage() {
 
   const completedResults = await prisma.exerciseResult.findMany({
     where: {
+      id: resultId || undefined,
       exercise: {
         workout: {
           therapistId
@@ -44,18 +50,29 @@ export default async function CompletedExercisesPage() {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Completed Exercises</h1>
-        <Button asChild variant="outline">
-          <Link href="/dashboard/therapist">Back to Dashboard</Link>
+      <div className="flex items-center gap-2 mb-2">
+        <Button asChild variant="ghost" size="icon">
+          <Link href="/dashboard/therapist">
+            <ChevronLeft className="h-5 w-5" />
+          </Link>
         </Button>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold">
+            {resultId ? "Review Exercise" : "Completed Exercises"}
+          </h1>
+          {resultId && completedResults[0] && (
+            <p className="text-slate-500">
+              For {completedResults[0].exercise.workout.client.name || completedResults[0].exercise.workout.client.email}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-6">
         {completedResults.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center text-slate-500">
-              No completed exercises found.
+              {resultId ? "Exercise result not found." : "No completed exercises found."}
             </CardContent>
           </Card>
         ) : (
@@ -65,7 +82,7 @@ export default async function CompletedExercisesPage() {
                 <div>
                   <CardTitle>{result.exercise.name}</CardTitle>
                   <p className="text-sm text-slate-500">
-                    Client: {result.exercise.workout.client.name} | {new Date(result.createdAt).toLocaleDateString()}
+                    Workout: {result.exercise.workout.title} | {new Date(result.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <Badge variant="secondary" className="bg-green-100 text-green-700">

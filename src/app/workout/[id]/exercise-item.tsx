@@ -5,17 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Check, Edit2 } from "lucide-react";
+import { Check, Edit2 } from "lucide-react";
 import { submitExerciseResult } from "@/app/actions/exercise";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { uploadFile } from "@/lib/supabase";
-import { cn, getYouTubeEmbedUrl } from "@/lib/utils";
+import { getYouTubeEmbedUrl } from "@/lib/utils";
 
 export default function ExerciseItem({ exercise }: { exercise: any }) {
   const [showForm, setShowForm] = useState(false);
   const [feedback, setFeedback] = useState(exercise.result?.feedback || "");
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -25,17 +23,9 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
   async function handleSubmit() {
     setLoading(true);
     try {
-      let mediaUrl = exercise.result?.mediaUrl;
-
-      if (mediaFile) {
-        toast.info("Uploading media...");
-        mediaUrl = await uploadFile(mediaFile, 'exercise-videos');
-      }
-
       const result = await submitExerciseResult({
         exerciseId: exercise.id,
         feedback,
-        mediaUrl,
       });
 
       if (result.success) {
@@ -47,7 +37,7 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong with upload or submission");
+      toast.error("Something went wrong with submission");
     } finally {
       setLoading(false);
     }
@@ -103,15 +93,6 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
           <div className="space-y-2">
             <h4 className="text-xs font-semibold uppercase text-slate-400">My Feedback</h4>
             <p className="text-sm">{exercise.result.feedback}</p>
-            {exercise.result.mediaUrl && (
-              <div className="mt-2 rounded-md overflow-hidden border">
-                {exercise.result.mediaUrl.match(/\.(mp4|mov|webm)$/) ? (
-                  <video src={exercise.result.mediaUrl} controls className="w-full max-h-48 bg-black" />
-                ) : (
-                  <img src={exercise.result.mediaUrl} alt="Exercise result" className="w-full max-h-48 object-cover" />
-                )}
-              </div>
-            )}
             {(exercise.result.notes || exercise.result.concerns) && (
               <div className="space-y-2 mt-2 pt-2 border-t">
                 {exercise.result.notes && (
@@ -146,32 +127,6 @@ export default function ExerciseItem({ exercise }: { exercise: any }) {
               />
             </div>
             
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Upload Image/Video (Optional)</h4>
-              <input 
-                type="file" 
-                id={`file-${exercise.id}`}
-                className="hidden" 
-                accept="video/*,image/*"
-                capture="environment"
-                onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
-              />
-              <label 
-                htmlFor={`file-${exercise.id}`}
-                className={cn(
-                  "flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-md transition-colors cursor-pointer",
-                  mediaFile ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-slate-50 hover:bg-slate-100"
-                )}
-              >
-                <div className="flex flex-col items-center">
-                  <Upload className={cn("h-6 w-6", mediaFile ? "text-blue-500" : "text-slate-400")} />
-                  <span className={cn("text-xs mt-1", mediaFile ? "text-blue-600 font-medium" : "text-slate-500")}>
-                    {mediaFile ? mediaFile.name : "Tap to record or upload"}
-                  </span>
-                </div>
-              </label>
-            </div>
-
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setShowForm(false)}>
                 Cancel

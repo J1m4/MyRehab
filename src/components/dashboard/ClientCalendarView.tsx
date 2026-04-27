@@ -13,10 +13,9 @@ import {
   isSameDay, 
   isToday, 
   isPast,
-  isFuture,
   startOfDay
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CheckCircle2, Clock, AlertCircle, Plus } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -35,7 +34,8 @@ interface Workout {
 
 export default function ClientCalendarView({ 
   workouts,
-  isTherapist = false
+  isTherapist = false,
+  clientId
 }: { 
   workouts: Workout[];
   clientId?: string;
@@ -143,10 +143,19 @@ export default function ClientCalendarView({
       </Card>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <CalendarIcon className="h-5 w-5" />
-          Activities for {format(selectedDate, "PPPP")}
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <CalendarIcon className="h-5 w-5" />
+            Activities for {format(selectedDate, "PPPP")}
+          </h3>
+          {isTherapist && clientId && (
+            <Button asChild size="sm">
+              <Link href={`/dashboard/therapist/client/${clientId}/workout/new?date=${format(selectedDate, "yyyy-MM-dd")}`}>
+                <Plus className="mr-2 h-4 w-4" /> Add Workout
+              </Link>
+            </Button>
+          )}
+        </div>
 
         {selectedDayWorkouts.length === 0 ? (
           <Card className="py-8 bg-slate-50 border-dashed">

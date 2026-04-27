@@ -154,7 +154,7 @@ export default async function TherapistWorkoutDetailPage({ params }: { params: P
                     )}
                     
                     <Button asChild variant="outline" size="sm" className="w-full">
-                      <Link href="/dashboard/therapist/completed">
+                      <Link href={`/dashboard/therapist/completed?id=${exercise.result.id}`}>
                         Update Review / Add Notes
                       </Link>
                     </Button>
