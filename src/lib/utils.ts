@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getYouTubeEmbedUrl(url: string) {
+export function getYouTubeEmbedUrl(url: string | null | undefined) {
   if (!url) return null;
   
   // Handle various YouTube URL formats
