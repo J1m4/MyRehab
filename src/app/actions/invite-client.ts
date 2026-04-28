@@ -32,11 +32,12 @@ export async function inviteClient(email: string) {
 
     const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/signup?token=${token}`;
 
-    let emailSent = false;
+    const fromAddress = process.env.EMAIL_FROM_ADDRESS || "MyCoach <onboarding@resend.dev>";
+
     if (process.env.RESEND_API_KEY) {
       try {
-        await resend.emails.send({
-          from: "MyCoach <onboarding@resend.dev>",
+        const { data, error } = await resend.emails.send({
+          from: fromAddress,
           to: email,
           subject: `${therapistName} invited you to MyCoach`,
           html: `
@@ -55,15 +56,32 @@ export async function inviteClient(email: string) {
             </div>
           `,
         });
-        emailSent = true;
+
+        if (error) {
+          console.error("Resend API error:", error);
+          return { 
+            success: false, 
+            error: "EMAIL_FAILED", 
+            message: "Email failed to send. Invite link generated.", 
+            inviteLink 
+          };
+        }
+
+        return { success: true, inviteLink, emailSent: true };
       } catch (e) {
-        console.error("Resend error:", e);
+        console.error("Resend exception:", e);
+        return { 
+          success: false, 
+          error: "EMAIL_FAILED", 
+          message: "Could not send email. Invite link generated.", 
+          inviteLink 
+        };
       }
     }
 
-    return { success: true, inviteLink, emailSent };
+    return { success: true, inviteLink, emailSent: false };
   } catch (error) {
     console.error("Invite error:", error);
-    return { success: false, error: "Internal server error" };
+    return { success: false, error: "INTERNAL_ERROR", message: "Internal server error" };
   }
 }

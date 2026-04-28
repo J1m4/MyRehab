@@ -21,11 +21,22 @@ export default function InviteClientPage() {
 
     try {
       const result = await inviteClient(email);
+      
       if (result.success) {
         setInviteLink(result.inviteLink || null);
-        toast.success(result.emailSent ? "Invite sent via email!" : "Invite link generated!");
+        if (result.emailSent) {
+          toast.success("Invite emailed successfully!");
+        } else {
+          toast.success("Invite link generated!");
+        }
+      } else if (result.error === "EMAIL_FAILED") {
+        // Special case: Link was created but email failed
+        setInviteLink(result.inviteLink || null);
+        toast.warning("Could not send email. Please copy and share this link manually.", {
+          duration: 5000,
+        });
       } else {
-        toast.error(result.error || "Failed to generate invite");
+        toast.error(result.message || "Failed to generate invite");
       }
     } catch (error) {
       toast.error("Something went wrong");
