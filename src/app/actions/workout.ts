@@ -26,10 +26,13 @@ export async function createWorkout(data: {
     const therapistId = (session.user as any).id;
     const { title, scheduledFor, clientId, exercises } = data;
 
+    // Fix off-by-one date bug by treating as local time (YYYY-MM-DD to YYYY-MM-DDT00:00:00)
+    const localDate = new Date(`${scheduledFor}T00:00:00`);
+
     const workout = await prisma.workout.create({
       data: {
         title,
-        scheduledFor: new Date(scheduledFor),
+        scheduledFor: localDate,
         clientId,
         therapistId,
         exercises: {

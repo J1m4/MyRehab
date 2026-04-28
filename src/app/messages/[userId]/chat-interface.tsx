@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { uploadFile } from "@/lib/supabase";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function ChatInterface({ 
   initialMessages, 
@@ -78,6 +79,9 @@ export default function ChatInterface({
       content,
       imageUrl: imagePreview,
       createdAt: new Date(),
+      sender: {
+        profilePictureUrl: null, // We don't have it easily here but it's "me"
+      }
     };
 
     setMessages([...messages, optimisticMessage]);
@@ -122,9 +126,15 @@ export default function ChatInterface({
           return (
             <div 
               key={msg.id} 
-              className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+              className={`flex items-end gap-2 ${isMe ? "justify-end" : "justify-start"}`}
             >
-              <div className={`max-w-[85%] p-3 rounded-2xl ${
+              {!isMe && (
+                <Avatar className="h-6 w-6 shrink-0 mb-1">
+                  <AvatarImage src={msg.sender?.profilePictureUrl || undefined} />
+                  <AvatarFallback className="text-[10px]">{msg.sender?.firstName?.[0] || msg.sender?.name?.[0] || "?"}</AvatarFallback>
+                </Avatar>
+              )}
+              <div className={`max-w-[75%] p-3 rounded-2xl ${
                 isMe ? "bg-slate-900 text-white rounded-br-none" : "bg-slate-100 text-slate-900 rounded-bl-none"
               }`}>
                 {msg?.imageUrl && (

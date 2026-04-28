@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronLeft, Send } from "lucide-react";
 import Link from "next/link";
 import ChatInterface from "./chat-interface";
@@ -29,6 +29,17 @@ export default async function MessagePage({ params }: { params: Promise<{ userId
         { senderId: otherUserId, receiverId: currentUserId },
       ],
     },
+    include: {
+      sender: {
+        select: {
+          profilePictureUrl: true,
+          firstName: true,
+          lastName: true,
+          name: true,
+          email: true,
+        }
+      }
+    },
     orderBy: {
       createdAt: "asc",
     },
@@ -44,10 +55,11 @@ export default async function MessagePage({ params }: { params: Promise<{ userId
         </Button>
         <div className="flex items-center gap-2 overflow-hidden">
           <Avatar className="h-8 w-8 shrink-0">
+            <AvatarImage src={otherUser.profilePictureUrl || undefined} />
             <AvatarFallback>{otherUser.name?.[0] || otherUser.email[0].toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="overflow-hidden">
-            <h2 className="font-bold truncate">{otherUser.name || otherUser.email}</h2>
+            <h2 className="font-bold truncate">{otherUser.name || `${otherUser.firstName || ""} ${otherUser.lastName || ""}`.trim() || otherUser.email}</h2>
             <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Athlete</p>
           </div>
         </div>

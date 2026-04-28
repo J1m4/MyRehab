@@ -3,8 +3,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Plus, ChevronLeft } from "lucide-react";
+import { Plus, ChevronLeft, UserMinus } from "lucide-react";
 import ClientCalendarView from "@/components/dashboard/ClientCalendarView";
+import RemoveAthleteButton from "@/components/dashboard/RemoveAthleteButton";
 
 export default async function ClientWorkoutsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: clientId } = await params;
@@ -49,11 +50,14 @@ export default async function ClientWorkoutsPage({ params }: { params: Promise<{
           <h1 className="text-3xl font-bold">{client.name || client.email}</h1>
           <p className="text-slate-500">Manage training plans and track performance</p>
         </div>
-        <Button asChild>
-          <Link href={`/dashboard/therapist/client/${clientId}/workout/new`}>
-            <Plus className="mr-2 h-4 w-4" /> Create Training Plan
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <RemoveAthleteButton clientId={clientId} clientName={client.name || client.email} />
+          <Button asChild>
+            <Link href={`/dashboard/therapist/client/${clientId}/workout/new`}>
+              <Plus className="mr-2 h-4 w-4" /> Create Training Plan
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <ClientCalendarView workouts={workouts} isTherapist={true} clientId={clientId} />

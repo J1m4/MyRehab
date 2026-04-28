@@ -11,6 +11,34 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
 
+import { revalidatePath } from "next/cache";
+
+export async function removeClient(clientId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== "THERAPIST") {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const therapistId = (session.user as any).id;
+
+    await prisma.clientTherapist.delete({
+      where: {
+        therapistId_clientId: {
+          therapistId,
+          clientId,
+        },
+      },
+    });
+
+    revalidatePath("/dashboard/therapist");
+    return { success: true };
+  } catch (error) {
+    console.error("Remove client error:", error);
+    return { success: false, error: "Internal server error" };
+  }
+}
+
 export async function uploadAvatar(formData: FormData) {
   try {
     const session = await getServerSession(authOptions);
