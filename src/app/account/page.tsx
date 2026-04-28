@@ -224,7 +224,7 @@ export default function AccountPage() {
                 <Label htmlFor="f">Female</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Other" id="other" />
+                <RadioGroupItem value="Or" id="other" />
                 <Label htmlFor="other">Other</Label>
               </div>
             </RadioGroup>

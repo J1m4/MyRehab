@@ -23,16 +23,17 @@ export default function InviteClientPage() {
       const result = await inviteClient(email);
       
       if (result.success) {
-        setInviteLink(result.inviteLink || null);
-        if (result.emailSent) {
-          toast.success("Invite emailed successfully!");
+        if (result.alreadyExisted) {
+          toast.success(result.message);
+          router.push("/dashboard/therapist");
         } else {
-          toast.success("Invite link generated!");
+          setInviteLink(result.inviteLink || null);
+          toast.success(result.message);
         }
       } else if (result.error === "EMAIL_FAILED") {
         // Special case: Link was created but email failed
         setInviteLink(result.inviteLink || null);
-        toast.warning("Could not send email. Please copy and share this link manually.", {
+        toast.warning(result.message, {
           duration: 5000,
         });
       } else {
